@@ -1,0 +1,18 @@
+# Full project: pipeline, training, EDA notebook, report. The app alone needs only app/requirements.txt.
+ipykernel==7.4.0
+joblib==1.6.0
+jupyter==1.1.1
+Markdown==3.11.1
+matplotlib==3.11.2
+nbconvert==7.17.2
+nbformat==5.11.1
+numpy==2.5.4
+pandas==3.0.6
+pillow==12.3.0
+playwright==1.64.0
+plotly==7.1.0
+pyarrow==26.0.0
+scikit-learn==1.9.1
+scipy==1.18.1
+seaborn==0.13.2
+streamlit==1.66.0

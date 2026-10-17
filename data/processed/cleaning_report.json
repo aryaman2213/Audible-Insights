@@ -1,0 +1,183 @@
+{
+  "raw": {
+    "catalog": {
+      "rows": 6368,
+      "columns": [
+        "Book Name",
+        "Author",
+        "Rating",
+        "Number of Reviews",
+        "Price"
+      ]
+    },
+    "advanced": {
+      "rows": 4464,
+      "columns": [
+        "Book Name",
+        "Author",
+        "Rating",
+        "Number of Reviews",
+        "Price",
+        "Description",
+        "Listening Time",
+        "Ranks and Genre"
+      ]
+    }
+  },
+  "missing_raw": {
+    "catalog_unrated_(rating_-1)": 631,
+    "catalog_price_missing": 3,
+    "advanced_unrated_(rating_-1)": 421,
+    "advanced_description_missing": 6,
+    "advanced_description_junk": 2022,
+    "advanced_description_award_blurb_only": 94,
+    "advanced_listening_time_missing": 2271,
+    "advanced_ranks_and_genre_missing": 2268
+  },
+  "author_spellings_unified": 3,
+  "dedup_catalog": {
+    "rows_in": 6368,
+    "exact_duplicates": 929,
+    "same_book_duplicates": 43,
+    "rows_out": 5396
+  },
+  "dedup_advanced": {
+    "rows_in": 4464,
+    "exact_duplicates": 234,
+    "same_book_duplicates": 223,
+    "rows_out": 4007
+  },
+  "merge": {
+    "books": 6056,
+    "in_both_files": 3347,
+    "only_catalog": 2049,
+    "only_advanced": 660
+  },
+  "final_coverage": {
+    "rated": 5479,
+    "with_description": 2298,
+    "with_listed_genre": 2059,
+    "with_listening_time": 2095,
+    "price_missing": 1,
+    "price_decimal_shift_corrected": 132,
+    "fine_genres": 876
+  },
+  "genre_inference": {
+    "trained_on": 1821,
+    "classes": 17,
+    "cv_accuracy": 0.52,
+    "cv_macro_f1": 0.4786,
+    "cv_top3_accuracy": 0.7578,
+    "cv_accuracy_when_confident": 0.7,
+    "cv_share_confident": 0.4558,
+    "min_probability": 0.168,
+    "target_accuracy": 0.7,
+    "candidates": 477,
+    "inferred": 218,
+    "left_unknown_low_confidence": 259,
+    "per_genre": {
+      "Arts, Sports & Leisure": {
+        "precision": 0.333,
+        "recall": 0.116,
+        "f1-score": 0.172,
+        "support": 43.0
+      },
+      "Biographies & Memoirs": {
+        "precision": 0.464,
+        "recall": 0.372,
+        "f1-score": 0.413,
+        "support": 86.0
+      },
+      "Business & Careers": {
+        "precision": 0.68,
+        "recall": 0.735,
+        "f1-score": 0.707,
+        "support": 223.0
+      },
+      "Children & Teens": {
+        "precision": 0.534,
+        "recall": 0.556,
+        "f1-score": 0.545,
+        "support": 126.0
+      },
+      "Comedy & Humour": {
+        "precision": 0.833,
+        "recall": 0.357,
+        "f1-score": 0.5,
+        "support": 14.0
+      },
+      "Health & Wellness": {
+        "precision": 0.653,
+        "recall": 0.573,
+        "f1-score": 0.61,
+        "support": 82.0
+      },
+      "History": {
+        "precision": 0.345,
+        "recall": 0.468,
+        "f1-score": 0.397,
+        "support": 62.0
+      },
+      "Language & Education": {
+        "precision": 0.55,
+        "recall": 0.55,
+        "f1-score": 0.55,
+        "support": 40.0
+      },
+      "Literature & Fiction": {
+        "precision": 0.512,
+        "recall": 0.519,
+        "f1-score": 0.516,
+        "support": 237.0
+      },
+      "Money & Finance": {
+        "precision": 0.618,
+        "recall": 0.649,
+        "f1-score": 0.633,
+        "support": 97.0
+      },
+      "Mystery, Thriller & Horror": {
+        "precision": 0.46,
+        "recall": 0.471,
+        "f1-score": 0.465,
+        "support": 85.0
+      },
+      "Personal Development": {
+        "precision": 0.488,
+        "recall": 0.556,
+        "f1-score": 0.519,
+        "support": 216.0
+      },
+      "Psychology, Philosophy & Society": {
+        "precision": 0.481,
+        "recall": 0.382,
+        "f1-score": 0.426,
+        "support": 131.0
+      },
+      "Religion & Spirituality": {
+        "precision": 0.555,
+        "recall": 0.548,
+        "f1-score": 0.552,
+        "support": 166.0
+      },
+      "Romance": {
+        "precision": 0.273,
+        "recall": 0.327,
+        "f1-score": 0.298,
+        "support": 55.0
+      },
+      "Science & Technology": {
+        "precision": 0.511,
+        "recall": 0.505,
+        "f1-score": 0.508,
+        "support": 95.0
+      },
+      "Science Fiction & Fantasy": {
+        "precision": 0.333,
+        "recall": 0.317,
+        "f1-score": 0.325,
+        "support": 63.0
+      }
+    }
+  }
+}

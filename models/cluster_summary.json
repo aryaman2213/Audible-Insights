@@ -1,0 +1,524 @@
+{
+  "0": {
+    "name": "Mystery, Thriller & Horror · murder, thriller, poirot",
+    "top_terms": [
+      "murder",
+      "thriller",
+      "poirot",
+      "killer",
+      "secret",
+      "mystery",
+      "gray",
+      "reacher",
+      "jack reacher",
+      "gone",
+      "holmes",
+      "woman"
+    ],
+    "size": 508,
+    "fitted_books": 106,
+    "genres": {
+      "Unknown": 389,
+      "Mystery, Thriller & Horror": 113,
+      "Children & Teens": 4,
+      "Romance": 2
+    },
+    "avg_rating": 4.431,
+    "examples": [
+      "The Girl on the Train",
+      "Inferno",
+      "The Girl in the Spider's Web: Continuing Stieg Larsson's Dragon Tattoo Series, Book 4",
+      "Memory Man",
+      "The Woman in the Window"
+    ]
+  },
+  "1": {
+    "name": "Personal Development · life, success, people",
+    "top_terms": [
+      "life",
+      "success",
+      "people",
+      "positive",
+      "mind",
+      "happiness",
+      "live",
+      "way",
+      "want",
+      "self",
+      "thinking",
+      "achieve"
+    ],
+    "size": 633,
+    "fitted_books": 237,
+    "genres": {
+      "Unknown": 378,
+      "Personal Development": 252,
+      "Religion & Spirituality": 3
+    },
+    "avg_rating": 4.464,
+    "examples": [
+      "How to Win Friends and Influence People",
+      "The Subtle Art of Not Giving a F*ck: A Counterintuitive Approach to Living a Good Life",
+      "Educated",
+      "The Life-Changing Magic of Tidying: A Simple, Effective Way to Banish Clutter Forever",
+      "The Five Love Languages: The Secret to Love That Lasts"
+    ]
+  },
+  "2": {
+    "name": "Literature & Fiction · novel, love, story",
+    "top_terms": [
+      "novel",
+      "love",
+      "story",
+      "stories",
+      "short",
+      "tale",
+      "war",
+      "young",
+      "literature",
+      "woman",
+      "collection",
+      "love tinder"
+    ],
+    "size": 470,
+    "fitted_books": 280,
+    "genres": {
+      "Literature & Fiction": 294,
+      "Unknown": 175,
+      "Religion & Spirituality": 1
+    },
+    "avg_rating": 4.35,
+    "examples": [
+      "The Nightingale",
+      "The Alchemist: A Fable About Following Your Dream",
+      "Fifty Shades Darker: Book Two of the Fifty Shades Trilogy",
+      "Big Little Lies",
+      "The Tattooist of Auschwitz"
+    ]
+  },
+  "3": {
+    "name": "Health & Wellness · body, weight, health",
+    "top_terms": [
+      "body",
+      "weight",
+      "health",
+      "mind",
+      "weight loss",
+      "loss",
+      "diet",
+      "healing",
+      "brain",
+      "revolutionary",
+      "lose",
+      "nutrition"
+    ],
+    "size": 335,
+    "fitted_books": 92,
+    "genres": {
+      "Unknown": 225,
+      "Health & Wellness": 109,
+      "Personal Development": 1
+    },
+    "avg_rating": 4.471,
+    "examples": [
+      "Wild",
+      "When Breath Becomes Air",
+      "The Body Keeps the Score: Mind, Brain and Body in the Transformation of Trauma",
+      "Bigger Leaner Stronger: The Simple Science of Building the Ultimate Male Body",
+      "The Complete Guide to Fasting: Heal Your Body Through Intermittent, Alternate-Day, and Extended Fasting"
+    ]
+  },
+  "4": {
+    "name": "Children & Teens · stories, kid, diary",
+    "top_terms": [
+      "stories",
+      "kid",
+      "diary",
+      "wimpy",
+      "wimpy kid",
+      "diary wimpy",
+      "kids",
+      "tales",
+      "stories kids",
+      "children",
+      "peppa",
+      "peppa pig"
+    ],
+    "size": 441,
+    "fitted_books": 154,
+    "genres": {
+      "Unknown": 271,
+      "Children & Teens": 169,
+      "Literature & Fiction": 1
+    },
+    "avg_rating": 4.543,
+    "examples": [
+      "The Fault in Our Stars",
+      "Mockingjay: The Hunger Games, Book 3",
+      "Wonder",
+      "Harry Potter and the Philosopher's Stone, Book 1",
+      "Wrecking Ball: Diary of a Wimpy Kid, Book 14"
+    ]
+  },
+  "5": {
+    "name": "Psychology, Philosophy & Society · india, political, world",
+    "top_terms": [
+      "india",
+      "political",
+      "world",
+      "philosophy",
+      "politics",
+      "empire",
+      "feminism",
+      "state",
+      "fascism",
+      "indian",
+      "social",
+      "justice"
+    ],
+    "size": 286,
+    "fitted_books": 153,
+    "genres": {
+      "Psychology, Philosophy & Society": 155,
+      "Unknown": 128,
+      "Religion & Spirituality": 1,
+      "History": 1,
+      "Biographies & Memoirs": 1
+    },
+    "avg_rating": 4.443,
+    "examples": [
+      "Sapiens",
+      "Man's Search for Meaning",
+      "Stillhouse Lake",
+      "Meditations",
+      "Between the World and Me"
+    ]
+  },
+  "6": {
+    "name": "Religion & Spirituality · spiritual, god, meditation",
+    "top_terms": [
+      "spiritual",
+      "god",
+      "meditation",
+      "wisdom",
+      "power",
+      "teachings",
+      "living",
+      "awakening",
+      "ancient",
+      "awareness",
+      "religion",
+      "buddha"
+    ],
+    "size": 508,
+    "fitted_books": 183,
+    "genres": {
+      "Unknown": 295,
+      "Religion & Spirituality": 211,
+      "Personal Development": 2
+    },
+    "avg_rating": 4.544,
+    "examples": [
+      "The Power of Your Subconscious Mind",
+      "The Four Agreements",
+      "The Untethered Soul: The Journey Beyond Yourself",
+      "The Monk Who Sold His Ferrari",
+      "A New Earth: Awakening Your Life's Purpose"
+    ]
+  },
+  "7": {
+    "name": "Business & Careers · business, leadership, management",
+    "top_terms": [
+      "business",
+      "leadership",
+      "management",
+      "leaders",
+      "hbr",
+      "thinking",
+      "hbr reads",
+      "reads",
+      "success",
+      "change",
+      "companies",
+      "team"
+    ],
+    "size": 530,
+    "fitted_books": 242,
+    "genres": {
+      "Business & Careers": 277,
+      "Unknown": 251,
+      "Personal Development": 1,
+      "Science & Technology": 1
+    },
+    "avg_rating": 4.487,
+    "examples": [
+      "Thinking, Fast and Slow",
+      "The Art of War",
+      "Daring Greatly: How the Courage to Be Vulnerable Transforms the Way We Live, Love, Parent, and Lead",
+      "The Power of Habit: Why We Do What We Do, and How to Change",
+      "Never Split the Difference: Negotiating as if Your Life Depended on It"
+    ]
+  },
+  "8": {
+    "name": "Language & Education · learn, english, language",
+    "top_terms": [
+      "learn",
+      "english",
+      "language",
+      "vocabulary",
+      "speaking",
+      "level",
+      "learn language",
+      "learn english",
+      "complete",
+      "words",
+      "master",
+      "use"
+    ],
+    "size": 235,
+    "fitted_books": 60,
+    "genres": {
+      "Unknown": 166,
+      "Language & Education": 53,
+      "Comedy & Humour": 15,
+      "Mystery, Thriller & Horror": 1
+    },
+    "avg_rating": 4.348,
+    "examples": [
+      "China Rich Girlfriend",
+      "Everything Is F*cked: A Book About Hope",
+      "Predictably Irrational: The Hidden Forces That Shape Our Decisions",
+      "The Personal MBA: Master the Art of Business",
+      "On Writing Well: Audio Collection"
+    ]
+  },
+  "9": {
+    "name": "Romance · love, dirty, love tinder",
+    "top_terms": [
+      "love",
+      "dirty",
+      "love tinder",
+      "tinder",
+      "girl",
+      "novel",
+      "sex",
+      "fun",
+      "street",
+      "rivals",
+      "beach",
+      "jones"
+    ],
+    "size": 341,
+    "fitted_books": 62,
+    "genres": {
+      "Unknown": 272,
+      "Romance": 67,
+      "Literature & Fiction": 2
+    },
+    "avg_rating": 4.391,
+    "examples": [
+      "Me Before You",
+      "Fifty Shades Freed: Book Three of the Fifty Shades Trilogy",
+      "Hopeless",
+      "Bared to You: A Crossfire Novel, Book 1",
+      "Half Girlfriend"
+    ]
+  },
+  "10": {
+    "name": "Arts, Sports & Leisure · music, story, voyage",
+    "top_terms": [
+      "music",
+      "story",
+      "voyage",
+      "adventure",
+      "tennis",
+      "journeys",
+      "secrets",
+      "minecraft",
+      "entertainment",
+      "salt",
+      "mile",
+      "understand"
+    ],
+    "size": 221,
+    "fitted_books": 47,
+    "genres": {
+      "Unknown": 171,
+      "Arts, Sports & Leisure": 47,
+      "Literature & Fiction": 2,
+      "Children & Teens": 1
+    },
+    "avg_rating": 4.465,
+    "examples": [
+      "Salt, Fat, Acid, Heat: Mastering the Elements of Good Cooking",
+      "Born to Run: The Hidden Tribe, the Ultra-Runners, and the Greatest Race the World Has Never Seen",
+      "How to Fail at Almost Everything and Still Win Big: Kind of the Story of My Life",
+      "Infinite Jest",
+      "The Design of Everyday Things: Revised and Expanded Edition"
+    ]
+  },
+  "11": {
+    "name": "Science Fiction & Fantasy · dark, doctor, blood",
+    "top_terms": [
+      "dark",
+      "doctor",
+      "blood",
+      "sun",
+      "humanity",
+      "trilogy",
+      "magic",
+      "dark matter",
+      "elantris",
+      "uprooted",
+      "children",
+      "earth"
+    ],
+    "size": 385,
+    "fitted_books": 70,
+    "genres": {
+      "Unknown": 303,
+      "Science Fiction & Fantasy": 75,
+      "Children & Teens": 5,
+      "Literature & Fiction": 1,
+      "Mystery, Thriller & Horror": 1
+    },
+    "avg_rating": 4.498,
+    "examples": [
+      "The Martian",
+      "Outlander: Outlander, Book 1",
+      "Ready Player One",
+      "1984",
+      "The Testaments"
+    ]
+  },
+  "12": {
+    "name": "Science & Technology · physics, nature, universe",
+    "top_terms": [
+      "physics",
+      "nature",
+      "universe",
+      "theory",
+      "science",
+      "human",
+      "brain",
+      "time",
+      "artificial intelligence",
+      "human mind",
+      "artificial",
+      "reality"
+    ],
+    "size": 351,
+    "fitted_books": 109,
+    "genres": {
+      "Unknown": 230,
+      "Science & Technology": 118,
+      "Psychology, Philosophy & Society": 2,
+      "History": 1
+    },
+    "avg_rating": 4.442,
+    "examples": [
+      "Astrophysics for People in a Hurry",
+      "A Brief History of Time: From Big Bang to Black Holes",
+      "Homo Deus: A Brief History of Tomorrow",
+      "The Body: A Guide for Occupants",
+      "Guns, Germs and Steel: The Fate of Human Societies"
+    ]
+  },
+  "13": {
+    "name": "Money & Finance · money, financial, market",
+    "top_terms": [
+      "money",
+      "financial",
+      "market",
+      "investing",
+      "economics",
+      "trading",
+      "stock",
+      "investment",
+      "stock market",
+      "investors",
+      "guide",
+      "rich"
+    ],
+    "size": 309,
+    "fitted_books": 106,
+    "genres": {
+      "Unknown": 198,
+      "Money & Finance": 110,
+      "Personal Development": 1
+    },
+    "avg_rating": 4.415,
+    "examples": [
+      "Think and Grow Rich",
+      "Rich Dad Poor Dad: What the Rich Teach Their Kids About Money - That the Poor and Middle Class Do Not!",
+      "The Intelligent Investor Rev Ed.",
+      "How to Day Trade for a Living: A Beginner's Guide to Trading Tools and Tactics, Money Management, Discipline and Trading Psychology",
+      "A Beginner's Guide to the Stock Market: Everything You Need to Start Making Money Today"
+    ]
+  },
+  "14": {
+    "name": "History · history, india, east",
+    "top_terms": [
+      "history",
+      "india",
+      "east",
+      "world",
+      "british",
+      "civilization",
+      "hitler",
+      "rise",
+      "account",
+      "century",
+      "modern",
+      "indian"
+    ],
+    "size": 248,
+    "fitted_books": 63,
+    "genres": {
+      "Unknown": 171,
+      "History": 74,
+      "Children & Teens": 1,
+      "Literature & Fiction": 1,
+      "Biographies & Memoirs": 1
+    },
+    "avg_rating": 4.49,
+    "examples": [
+      "Endurance: Shackleton's Incredible Voyage",
+      "The Prince",
+      "Chariots of the Gods",
+      "The Rise and Fall of the Third Reich: A History of Nazi Germany",
+      "SPQR: A History of Ancient Rome"
+    ]
+  },
+  "15": {
+    "name": "Biographies & Memoirs · autobiography, man, journey",
+    "top_terms": [
+      "autobiography",
+      "man",
+      "journey",
+      "memoirs",
+      "free interview",
+      "sessions free",
+      "interview",
+      "sessions",
+      "essays",
+      "india",
+      "biography",
+      "casanova"
+    ],
+    "size": 255,
+    "fitted_books": 95,
+    "genres": {
+      "Unknown": 156,
+      "Biographies & Memoirs": 99
+    },
+    "avg_rating": 4.45,
+    "examples": [
+      "Becoming",
+      "Can't Hurt Me: Master Your Mind and Defy the Odds",
+      "Make Your Bed: Small things that can change your life...and maybe the world",
+      "Alexander Hamilton",
+      "Elon Musk"
+    ]
+  }
+}

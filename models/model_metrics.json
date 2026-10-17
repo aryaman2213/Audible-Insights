@@ -1,0 +1,450 @@
+{
+  "clustering": {
+    "k": 16,
+    "silhouette_by_k": {
+      "8": 0.2289,
+      "10": 0.2621,
+      "12": 0.2896,
+      "14": 0.3184,
+      "16": 0.3387,
+      "18": 0.286,
+      "20": 0.2618,
+      "22": 0.2554,
+      "24": 0.2402,
+      "26": 0.2352,
+      "28": 0.2171,
+      "30": 0.2101
+    },
+    "fitted_on_books": 2059,
+    "assigned_by": {
+      "title": 3520,
+      "fitted": 2059,
+      "description": 477
+    },
+    "dbscan": [
+      {
+        "eps": 0.3,
+        "clusters": 10,
+        "noise_share": 0.9704,
+        "largest_cluster_share": 0.0044,
+        "silhouette_clustered_only": 0.8,
+        "agreement_with_kmeans_ari": -0.0
+      },
+      {
+        "eps": 0.4,
+        "clusters": 26,
+        "noise_share": 0.8873,
+        "largest_cluster_share": 0.0194,
+        "silhouette_clustered_only": 0.5999,
+        "agreement_with_kmeans_ari": -0.0008
+      },
+      {
+        "eps": 0.5,
+        "clusters": 47,
+        "noise_share": 0.7237,
+        "largest_cluster_share": 0.0369,
+        "silhouette_clustered_only": 0.3916,
+        "agreement_with_kmeans_ari": 0.0191
+      },
+      {
+        "eps": 0.6,
+        "clusters": 56,
+        "noise_share": 0.3706,
+        "largest_cluster_share": 0.0894,
+        "silhouette_clustered_only": 0.2377,
+        "agreement_with_kmeans_ari": 0.2144
+      },
+      {
+        "eps": 0.7,
+        "clusters": 23,
+        "noise_share": 0.0835,
+        "largest_cluster_share": 0.1243,
+        "silhouette_clustered_only": 0.2674,
+        "agreement_with_kmeans_ari": 0.8393
+      },
+      {
+        "eps": 0.8,
+        "clusters": 18,
+        "noise_share": 0.0087,
+        "largest_cluster_share": 0.1355,
+        "silhouette_clustered_only": 0.3355,
+        "agreement_with_kmeans_ari": 0.9848
+      },
+      {
+        "eps": 0.9,
+        "clusters": 16,
+        "noise_share": 0.0,
+        "largest_cluster_share": 0.136,
+        "silhouette_clustered_only": 0.3318,
+        "agreement_with_kmeans_ari": 0.9825
+      },
+      {
+        "eps": 1.0,
+        "clusters": 5,
+        "noise_share": 0.0,
+        "largest_cluster_share": 0.866,
+        "silhouette_clustered_only": 0.0719,
+        "agreement_with_kmeans_ari": 0.0544
+      }
+    ]
+  },
+  "hybrid_weights": {
+    "content": 0.9,
+    "cluster": 0.05,
+    "quality": 0.05
+  },
+  "hybrid_tuning": [
+    {
+      "content": 0.5,
+      "cluster": 0.0,
+      "quality": 0.5,
+      "ndcg@10": 0.7563,
+      "precision@10": 0.6966,
+      "avg_rating_of_recs": 4.6734,
+      "objective": 0.8345
+    },
+    {
+      "content": 0.5,
+      "cluster": 0.05,
+      "quality": 0.45,
+      "ndcg@10": 0.779,
+      "precision@10": 0.7205,
+      "avg_rating_of_recs": 4.6632,
+      "objective": 0.8566
+    },
+    {
+      "content": 0.5,
+      "cluster": 0.1,
+      "quality": 0.4,
+      "ndcg@10": 0.8072,
+      "precision@10": 0.75,
+      "avg_rating_of_recs": 4.6489,
+      "objective": 0.8838
+    },
+    {
+      "content": 0.5,
+      "cluster": 0.2,
+      "quality": 0.3,
+      "ndcg@10": 0.851,
+      "precision@10": 0.797,
+      "avg_rating_of_recs": 4.6209,
+      "objective": 0.9258
+    },
+    {
+      "content": 0.6,
+      "cluster": 0.0,
+      "quality": 0.4,
+      "ndcg@10": 0.8382,
+      "precision@10": 0.7839,
+      "avg_rating_of_recs": 4.6293,
+      "objective": 0.9135
+    },
+    {
+      "content": 0.6,
+      "cluster": 0.05,
+      "quality": 0.35,
+      "ndcg@10": 0.8539,
+      "precision@10": 0.7993,
+      "avg_rating_of_recs": 4.6188,
+      "objective": 0.9285
+    },
+    {
+      "content": 0.6,
+      "cluster": 0.1,
+      "quality": 0.3,
+      "ndcg@10": 0.8698,
+      "precision@10": 0.8154,
+      "avg_rating_of_recs": 4.6029,
+      "objective": 0.9433
+    },
+    {
+      "content": 0.6,
+      "cluster": 0.2,
+      "quality": 0.2,
+      "ndcg@10": 0.8886,
+      "precision@10": 0.8342,
+      "avg_rating_of_recs": 4.5671,
+      "objective": 0.9597
+    },
+    {
+      "content": 0.7,
+      "cluster": 0.0,
+      "quality": 0.3,
+      "ndcg@10": 0.8831,
+      "precision@10": 0.8292,
+      "avg_rating_of_recs": 4.5874,
+      "objective": 0.9556
+    },
+    {
+      "content": 0.7,
+      "cluster": 0.05,
+      "quality": 0.25,
+      "ndcg@10": 0.8875,
+      "precision@10": 0.8332,
+      "avg_rating_of_recs": 4.5731,
+      "objective": 0.9591
+    },
+    {
+      "content": 0.7,
+      "cluster": 0.1,
+      "quality": 0.2,
+      "ndcg@10": 0.8918,
+      "precision@10": 0.8376,
+      "avg_rating_of_recs": 4.5576,
+      "objective": 0.9623
+    },
+    {
+      "content": 0.7,
+      "cluster": 0.2,
+      "quality": 0.1,
+      "ndcg@10": 0.8961,
+      "precision@10": 0.8419,
+      "avg_rating_of_recs": 4.5195,
+      "objective": 0.9641
+    },
+    {
+      "content": 0.8,
+      "cluster": 0.0,
+      "quality": 0.2,
+      "ndcg@10": 0.8938,
+      "precision@10": 0.8403,
+      "avg_rating_of_recs": 4.5497,
+      "objective": 0.9638
+    },
+    {
+      "content": 0.8,
+      "cluster": 0.05,
+      "quality": 0.15,
+      "ndcg@10": 0.8957,
+      "precision@10": 0.8419,
+      "avg_rating_of_recs": 4.534,
+      "objective": 0.9647
+    },
+    {
+      "content": 0.8,
+      "cluster": 0.1,
+      "quality": 0.1,
+      "ndcg@10": 0.8963,
+      "precision@10": 0.8419,
+      "avg_rating_of_recs": 4.5126,
+      "objective": 0.9638
+    },
+    {
+      "content": 0.9,
+      "cluster": 0.0,
+      "quality": 0.1,
+      "ndcg@10": 0.897,
+      "precision@10": 0.8426,
+      "avg_rating_of_recs": 4.5076,
+      "objective": 0.9641
+    },
+    {
+      "content": 0.9,
+      "cluster": 0.05,
+      "quality": 0.05,
+      "ndcg@10": 0.8999,
+      "precision@10": 0.844,
+      "avg_rating_of_recs": 4.4828,
+      "objective": 0.9654
+    }
+  ],
+  "model_comparison": [
+    {
+      "model": "Random",
+      "precision@10": 0.0419,
+      "recall@10": 0.005,
+      "ndcg@10": 0.0418,
+      "strict_precision@10": 0.0065,
+      "avg_rating_of_recs": 4.459,
+      "catalogue_coverage": 0.9495,
+      "queries": 596,
+      "uses_fine_genres": false
+    },
+    {
+      "model": "Most popular (weighted rating)",
+      "precision@10": 0.0196,
+      "recall@10": 0.0051,
+      "ndcg@10": 0.0205,
+      "strict_precision@10": 0.0007,
+      "avg_rating_of_recs": 4.8899,
+      "catalogue_coverage": 0.0053,
+      "queries": 596,
+      "uses_fine_genres": false
+    },
+    {
+      "model": "Content-based (genre-blind)",
+      "precision@10": 0.1908,
+      "recall@10": 0.046,
+      "ndcg@10": 0.2139,
+      "strict_precision@10": 0.0517,
+      "avg_rating_of_recs": 4.4579,
+      "catalogue_coverage": 0.8907,
+      "queries": 596,
+      "uses_fine_genres": false
+    },
+    {
+      "model": "Clustering-based (genre-blind)",
+      "precision@10": 0.1099,
+      "recall@10": 0.0194,
+      "ndcg@10": 0.1069,
+      "strict_precision@10": 0.0133,
+      "avg_rating_of_recs": 4.7655,
+      "catalogue_coverage": 0.086,
+      "queries": 596,
+      "uses_fine_genres": false
+    },
+    {
+      "model": "Hybrid (genre-blind)",
+      "precision@10": 0.2183,
+      "recall@10": 0.0506,
+      "ndcg@10": 0.2396,
+      "strict_precision@10": 0.0534,
+      "avg_rating_of_recs": 4.4905,
+      "catalogue_coverage": 0.8762,
+      "queries": 596,
+      "uses_fine_genres": false
+    },
+    {
+      "model": "Content-based (full features)",
+      "precision@10": 0.8587,
+      "recall@10": 0.2492,
+      "ndcg@10": 0.9055,
+      "strict_precision@10": 0.3854,
+      "avg_rating_of_recs": 4.4593,
+      "catalogue_coverage": 0.8562,
+      "queries": 596,
+      "uses_fine_genres": true
+    },
+    {
+      "model": "Clustering-based (full features)",
+      "precision@10": 0.2065,
+      "recall@10": 0.0433,
+      "ndcg@10": 0.2041,
+      "strict_precision@10": 0.0337,
+      "avg_rating_of_recs": 4.7659,
+      "catalogue_coverage": 0.085,
+      "queries": 596,
+      "uses_fine_genres": true
+    },
+    {
+      "model": "Hybrid (full features)",
+      "precision@10": 0.8572,
+      "recall@10": 0.2483,
+      "ndcg@10": 0.9036,
+      "strict_precision@10": 0.3851,
+      "avg_rating_of_recs": 4.4932,
+      "catalogue_coverage": 0.8514,
+      "queries": 596,
+      "uses_fine_genres": true
+    }
+  ],
+  "feature_ablation": [
+    {
+      "features": "text (title + description)",
+      "precision@10": 0.1908,
+      "recall@10": 0.046,
+      "ndcg@10": 0.2139,
+      "strict_precision@10": 0.0517,
+      "avg_rating_of_recs": 4.4579,
+      "catalogue_coverage": 0.8907,
+      "queries": 596,
+      "uses_fine_genres": false
+    },
+    {
+      "features": "text + author",
+      "precision@10": 0.2102,
+      "recall@10": 0.0519,
+      "ndcg@10": 0.2395,
+      "strict_precision@10": 0.0589,
+      "avg_rating_of_recs": 4.4575,
+      "catalogue_coverage": 0.8922,
+      "queries": 596,
+      "uses_fine_genres": false
+    },
+    {
+      "features": "text + broad genre",
+      "precision@10": 0.3505,
+      "recall@10": 0.077,
+      "ndcg@10": 0.3637,
+      "strict_precision@10": 0.0878,
+      "avg_rating_of_recs": 4.4798,
+      "catalogue_coverage": 0.8009,
+      "queries": 596,
+      "uses_fine_genres": false
+    },
+    {
+      "features": "text + broad genre + author",
+      "precision@10": 0.3596,
+      "recall@10": 0.0819,
+      "ndcg@10": 0.3818,
+      "strict_precision@10": 0.0923,
+      "avg_rating_of_recs": 4.4768,
+      "catalogue_coverage": 0.8164,
+      "queries": 596,
+      "uses_fine_genres": false
+    },
+    {
+      "features": "all, incl. fine genres",
+      "precision@10": 0.8587,
+      "recall@10": 0.2492,
+      "ndcg@10": 0.9055,
+      "strict_precision@10": 0.3854,
+      "avg_rating_of_recs": 4.4593,
+      "catalogue_coverage": 0.8562,
+      "queries": 596,
+      "uses_fine_genres": true
+    }
+  ],
+  "rating_prediction": [
+    {
+      "model": "Global mean (baseline)",
+      "rmse": 0.2743,
+      "mae": 0.2021,
+      "test_books": 1045,
+      "train_books": 4176
+    },
+    {
+      "model": "Genre mean",
+      "rmse": 0.2694,
+      "mae": 0.1966,
+      "test_books": 1045,
+      "train_books": 4176
+    },
+    {
+      "model": "Author mean",
+      "rmse": 0.2542,
+      "mae": 0.1861,
+      "test_books": 1045,
+      "train_books": 4176
+    },
+    {
+      "model": "k-NN content (text only)",
+      "rmse": 0.2686,
+      "mae": 0.1968,
+      "test_books": 1045,
+      "train_books": 4176
+    },
+    {
+      "model": "k-NN content (all features)",
+      "rmse": 0.2571,
+      "mae": 0.1864,
+      "test_books": 1045,
+      "train_books": 4176
+    },
+    {
+      "model": "Hybrid (k-NN + author mean)",
+      "rmse": 0.2512,
+      "mae": 0.183,
+      "test_books": 1045,
+      "train_books": 4176
+    }
+  ],
+  "eval_settings": {
+    "k": 10,
+    "queries": 600,
+    "relevant": "shares >= 1 fine Audible genre with the query",
+    "strictly_relevant": "shares >= 2 fine genres",
+    "pool": "books with listed genres",
+    "seed": 42
+  }
+}

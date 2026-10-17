@@ -12,11 +12,15 @@ and AWS EC2 (Docker).
 | Clustering | KMeans **k = 16** (silhouette 0.339). DBSCAN reproduces the same clusters (adjusted Rand index **0.98**) |
 | Best recommender | **Hybrid**: precision@10 **0.218**, nDCG@10 **0.240** without genre labels (5.2× random). Best fair feature set (text + genre + author): precision@10 **0.360** |
 | Rating prediction | k-NN + author mean: RMSE **0.251** vs 0.274 for the global mean (−8%) |
+| Significance | Hybrid beats content-based on 261 vs 138 test books (Wilcoxon signed-rank, p < 0.001) |
+| Quality checks | 163-check end-to-end browser test of every page and control (`tests/e2e_app.py`); pipeline is byte-for-byte reproducible |
 
 - **App:** seven pages: Discover, Similar books, For you, Explore, Clusters, Model performance, About
 - **EDA:** [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (executed) answers every question in the brief
 - **Report:** [`reports/Audible_Insights_Report.pdf`](reports/Audible_Insights_Report.pdf)
 - **AWS guide:** [`deploy/AWS_DEPLOY.md`](deploy/AWS_DEPLOY.md)
+- **Live-evaluation script:** [`reports/LIVE_EVALUATION_GUIDE.md`](reports/LIVE_EVALUATION_GUIDE.md), what to say in the
+  12-minute explanation, plus likely questions and answers
 
 ---
 
@@ -56,7 +60,8 @@ The repo already contains the processed data and the trained models, so the app 
 | `app/` | Streamlit app (`streamlit_app.py` entry, `views.py` pages, `data.py` data access, `ui.py` styling) |
 | `models/` | `recommender.joblib`, `genre_classifier.joblib`, `model_metrics.json`, `cluster_summary.json` |
 | `Dockerfile`, `deploy/` | Container image, EC2 start-up script, update script, AWS guide |
-| `reports/` | PDF report, figures, app screenshots, and the scripts that build them |
+| `reports/` | PDF report, live-evaluation guide, figures, app screenshots, and the scripts that build them |
+| `tests/e2e_app.py` | End-to-end browser test: every button, tab, dropdown, slider, toggle and expander on every page |
 
 ## Methodology
 
@@ -136,8 +141,17 @@ those genres define relevance.
 |---|---|---|
 | text (title + description) | 0.191 | 0.214 |
 | + author | 0.210 | 0.239 |
-| + broad genre | 0.351 | 0.364 |
+| + broad genre | 0.350 | 0.364 |
 | **+ broad genre + author** | **0.360** | **0.382** |
+
+**Is the hybrid really better?** A Wilcoxon signed-rank test on the per-book nDCG@10 of the same 596 test books
+(paired and non-parametric, because per-book scores are bounded and far from normal):
+
+| comparison | wins / losses / ties | p-value |
+|---|---|---|
+| Hybrid vs content-based | 261 / 138 / 197 | < 0.001 |
+| Hybrid vs clustering-based | 368 / 99 / 129 | < 0.001 |
+| Content-based vs random | 402 / 57 / 137 | < 0.001 |
 
 **Rating prediction** (1,045 held-out books with 5+ reviews):
 
@@ -153,6 +167,9 @@ those genres define relevance.
 Full answers, with charts, are in [`notebooks/eda.ipynb`](notebooks/eda.ipynb).
 - **Genres.** Literature & Fiction, Business and Personal Development have the most titles. Fiction, Children's and
   Thrillers get the most listeners. Sci-fi & fantasy has 1,412 median reviews per title, about 8× business.
+- **Top-rated books** (weighted rating, 100+ reviews): *High Achiever*, *Awaking Wonder*, *Relationship Goals*,
+  *Zog*; the *Wings of Fire* series holds six of the top 15.
+- **Most common authors:** Harvard Business Review and OSHO (32 titles each), Devdutt Pattanaik (29), Ruskin Bond (28).
 - **Top authors** (3+ books, each with 20+ reviews): Tracey West 4.87, Tui T. Sutherland 4.86, then Joyce Meyer,
   Bill Johnson and Watchman Nee (4.80). Julia Donaldson has 13 books at 4.77 with 30k reviews.
 - **Ratings are compressed.** Mean 4.46, 61% at 4.5+, 5.6% below 4.0. Books with under 10 reviews are 33% perfect
@@ -161,11 +178,28 @@ Full answers, with charts, are in [`notebooks/eda.ipynb`](notebooks/eda.ipynb).
   helps only slightly (ρ = 0.09).
 - **Price tracks length** (ρ = 0.66), not rating. History is the longest and dearest genre (16.7 h, ₹1,003);
   25% of language courses are free.
+- **Statistical tests** (non-parametric, because ratings are skewed): ratings differ by genre (Kruskal–Wallis,
+  p ≈ 10⁻³⁷); books with 1,000+ reviews rate higher than books with under 50 (Mann–Whitney, p ≈ 10⁻¹⁹); free titles
+  depend on genre (chi-square, p ≈ 10⁻²⁸).
 - **Publication-year trends can't be answered**: neither file has a date (only 17 descriptions state one).
 - **Scenarios:**
   - New sci-fi fan → *Morning Star*, *So Long, Lollipops*, *The Martian*, *Jurassic Park*, *Thrawn*.
   - Thriller lover → Reacher, Baldacci, Horowitz, du Maurier, Forsyth and Indian thrillers.
   - 504 hidden gems, e.g. *Raven's Hart* (5.0, 37 reviews) and *Grey Sunshine* (4.8, 55).
+
+## Testing
+```bash
+streamlit run app/streamlit_app.py --server.port 8521      # terminal 1
+python tests/e2e_app.py --url http://localhost:8521        # terminal 2: 163 checks, about 4 minutes
+```
+The test drives the real app in Chrome:
+- every example button, model switch, slider and filter;
+- the comparison tab, the three quick-start presets and Clear;
+- all five Explore tabs, all 16 clusters, and every expander;
+- navigation between pages, plus a 390 px phone layout.
+
+After each action it checks for exceptions and that the expected content is on screen (e.g. a 6-hour limit really
+shows only books of 6 hours or less).
 
 ## Deployment
 **Streamlit Community Cloud**
@@ -195,3 +229,4 @@ The guide also covers updates, scaling (Auto Scaling + ALB or Elastic Beanstalk)
 | Multiple recommenders, evaluated (precision, recall, RMSE) | `src/evaluation.py`, `models/model_metrics.json`, Model performance page |
 | Streamlit app (preferences in, recommendations out, EDA) | `app/` |
 | AWS deployment | `Dockerfile`, `deploy/` |
+| Live evaluation preparation | `reports/LIVE_EVALUATION_GUIDE.md` |

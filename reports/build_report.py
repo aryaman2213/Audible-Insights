@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import config  # noqa: E402
+from src import eda  # noqa: E402
 
 REPORTS = ROOT / "reports"
 PDF_PATH = REPORTS / "Audible_Insights_Report.pdf"
@@ -108,6 +109,7 @@ figcaption { color: #64748b; font-size: 8.5pt; margin-top: 3pt; }
 .qa { break-inside: avoid; margin-bottom: 6pt; } .qa .q { font-weight: 650; }
 .box { background: #f8fafc; border-left: 4px solid #4f46e5; padding: 6pt 10pt; margin: 8pt 0; break-inside: avoid; }
 .page { break-before: page; }
+.keep { break-inside: avoid; }
 """
 
 
@@ -125,6 +127,11 @@ def build_html(live_url: str | None, aws_url: str | None) -> str:
     gi = rep["genre_inference"]
     fc, mr = rep["final_coverage"], rep["missing_raw"]
     w = m["hybrid_weights"]
+    books = eda.load_books()
+    num = eda.numeric_summary(books)
+    outliers = eda.outlier_table(books).to_dict("records")
+    tests = eda.statistical_tests(books).to_dict("records")
+    common = eda.q2_most_common_authors(books, 8).reset_index().to_dict("records")
 
     def qa(ids):
         return "".join(f'<div class="qa"><p class="q">{q}. {html.escape(answers[q][0])}</p>{answers[q][1]}</div>'
@@ -199,10 +206,20 @@ only in the basic one, {rep['merge']['only_advanced']:,} only in the advanced on
 hidden-gem flag (rating ≥ {config.HIDDEN_GEM_MIN_RATING}, 5–65 reviews), listening minutes, overall Audible rank.</p>
 
 <h2>3. Exploratory data analysis</h2>
+<h3>Distributions and outliers after cleaning</h3>
+{table(outliers, [('field', 'Field', ''), ('lower fence', 'Lower fence', ''), ('upper fence', 'Upper fence', ''),
+                  ('outliers', 'IQR outliers', ''), ('share', 'Share', '.1%'), ('action', 'Action', '')])}
+<p>Ratings barely vary (std {num.loc['Rating', 'std']:.2f}, skew {num.loc['Rating', 'skew']:.1f}). Review counts are
+extremely skewed (median {num.loc['Reviews', '50%']:,.0f}, max {num.loc['Reviews', 'max']:,.0f}), hence log(reviews) as
+<i>popularity</i> and the Bayesian weighted rating.</p>
 {qa(['Q1'])}
 {fig('q1_genres', 'Q1. Books and total reviews per genre')}
+{fig('q1_top_rated_books', 'Top-rated books (weighted rating, 100+ reviews)')}
 {qa(['Q2'])}
 {fig('q2_top_authors', 'Q2. Highest-rated authors')}
+<p><b>Most common authors</b> (by number of titles):</p>
+{table(common, [('author', 'Author', ''), ('books', 'Titles', ''), ('avg_rating', 'Avg rating', '.2f'),
+                ('total_reviews', 'Total reviews', ',.0f')])}
 {qa(['Q3'])}
 {fig('q3_ratings', 'Q3. Rating distribution and rating by genre')}
 {qa(['Q4'])}
@@ -210,6 +227,10 @@ hidden-gem flag (rating ≥ {config.HIDDEN_GEM_MIN_RATING}, 5–65 reviews), lis
 {qa(['Q5'])}
 {fig('q5_ratings_vs_reviews', 'Q5. Ratings vs number of reviews')}
 {fig('correlations', 'Correlations between numeric features')}
+<div class="keep"><h3>Statistical tests</h3>
+<p>All non-parametric, because ratings are bounded, discrete and heavily skewed.</p>
+{table(tests, [('question', 'Question', ''), ('test', 'Test', ''), ('why', 'Why this test', ''),
+               ('statistic', 'Statistic', ',.3f'), ('p_value', 'p-value', '.1e'), ('result', 'Result', '')])}</div>
 
 <h2 class="page">4. NLP and clustering</h2>
 <h3>Text features</h3>
@@ -248,6 +269,10 @@ shares at least one of the query book's 876 fine Audible genres (<b>strictly rel
 Full-feature (production) models also use the fine genres and are an optimistic upper bound.</div>
 {table(m['model_comparison'], metric_cols, highlight=lambda r: r['model'] == 'Hybrid (genre-blind)')}
 {fig('model_comparison', 'Genre-blind comparison and feature ablation')}
+<p><b>Is the difference real?</b> Wilcoxon signed-rank test on per-book nDCG@{k} for the same test books
+(paired, non-parametric):</p>
+{table(m['significance'], [('model_a', 'Model A', ''), ('model_b', 'Model B', ''), ('a_better_queries', 'A wins', ''),
+                           ('b_better_queries', 'B wins', ''), ('ties', 'Ties', ''), ('p_value', 'p-value', '.1e')])}
 {qa(['Q7'])}
 <h3>Which features matter? Rating prediction (RMSE)</h3>
 {table(m['feature_ablation'], [('features', 'Features', ''), (f'precision@{k}', f'Precision@{k}', '.3f'), (f'ndcg@{k}', f'nDCG@{k}', '.3f'),
@@ -280,7 +305,7 @@ hidden gems.</p>
 {shot('07_clusters', 'Clusters page')}
 {shot('08_model_performance', 'Model performance page')}
 
-<h2>8. Deployment</h2>
+<div class="keep"><h2>8. Deployment</h2>
 <ul>
 <li><b>Streamlit Community Cloud.</b> The app runs from the GitHub repo (<code>app/streamlit_app.py</code>, pinned
 <code>app/requirements.txt</code>).{f' Live at <a href="{live_url}">{live_url}</a>.' if live_url else ''}</li>
@@ -293,7 +318,7 @@ hidden gems.</p>
   Application Load Balancer, or Elastic Beanstalk's Docker platform, as documented in
   <code>deploy/AWS_DEPLOY.md</code>.</li>
   </ul></li>
-</ul>
+</ul></div>
 
 <h2>9. Insights, limitations and next steps</h2>
 <ol>
@@ -321,7 +346,8 @@ and the hybrid's quality term keeps recommendations well rated.</li>
 <tr><td>Models and metrics</td><td><code>models/</code>: recommender, genre classifier, metrics, cluster summary</td></tr>
 <tr><td>Streamlit app</td><td><code>app/</code>{f' · <a href="{live_url}">{live_url}</a>' if live_url else ''}</td></tr>
 <tr><td>AWS deployment</td><td><code>Dockerfile</code>, <code>deploy/ec2_user_data.sh</code>, <code>deploy/AWS_DEPLOY.md</code>{f' · <a href="{aws_url}">{aws_url}</a>' if aws_url else ''}</td></tr>
-<tr><td>Documentation</td><td><code>README.md</code>, this report, <code>reports/screenshots/</code></td></tr>
+<tr><td>Quality assurance</td><td><code>tests/e2e_app.py</code>: 163-check browser test of every page and control; the pipeline is byte-for-byte reproducible</td></tr>
+<tr><td>Documentation</td><td><code>README.md</code>, this report, <code>reports/LIVE_EVALUATION_GUIDE.md</code>, <code>reports/screenshots/</code></td></tr>
 </tbody></table>
 """
     return f"<!doctype html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{body}</body></html>"

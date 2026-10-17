@@ -36,9 +36,10 @@ def ranking_metrics(ranked: np.ndarray, rel: np.ndarray, strict: np.ndarray, k: 
 
 
 def evaluate_rankers(books: pd.DataFrame, rankers: dict, k=config.EVAL_K, n_queries=config.EVAL_QUERIES,
-                     seed=config.SEED) -> pd.DataFrame:
+                     seed=config.SEED, per_query: dict | None = None) -> pd.DataFrame:
     """rankers: name -> function(query_index, pool_mask) -> score array over all books.
-    Returns one row per ranker with mean metrics, average rating of what it recommends, and catalogue coverage."""
+    Returns one row per ranker with mean metrics, average rating of what it recommends, and catalogue coverage.
+    Pass a dict as per_query to also receive each ranker's per-query metrics (for significance tests)."""
     M = genre_matrix(books)
     pool = books["genre_source"].eq("listed").to_numpy()
     queries_all = np.where(pool & books["has_description"].to_numpy())[0]
@@ -68,6 +69,8 @@ def evaluate_rankers(books: pd.DataFrame, rankers: dict, k=config.EVAL_K, n_quer
             metrics.append(ranking_metrics(ranked, rel, strict, k))
             recommended.update(ranked.tolist())
             ratings.extend(rating[ranked][~np.isnan(rating[ranked])].tolist())
+        if per_query is not None:
+            per_query[name] = pd.DataFrame(metrics)
         m = pd.DataFrame(metrics).mean()
         rows.append({"model": name, f"precision@{k}": m["precision"], f"recall@{k}": m["recall"],
                      f"ndcg@{k}": m["ndcg"], f"strict_precision@{k}": m["strict_precision"],
@@ -185,3 +188,18 @@ def rating_prediction(books: pd.DataFrame, blocks: dict, k=config.RATING_KNN_NEI
         err = p - y[test]
         rows.append({"model": name, "rmse": float(np.sqrt((err ** 2).mean())), "mae": float(np.abs(err).mean())})
     return pd.DataFrame(rows).assign(test_books=len(test), train_books=len(train))
+
+
+def significance(per_query: dict, pairs: list[tuple[str, str]], metric="ndcg") -> list[dict]:
+    """Wilcoxon signed-rank test on per-query scores: is model A really better than model B on the same queries?
+    Paired and non-parametric, because per-query nDCG is bounded and far from normal."""
+    from scipy.stats import wilcoxon
+    out = []
+    for a, b in pairs:
+        x, y = per_query[a][metric].to_numpy(), per_query[b][metric].to_numpy()
+        stat, p = wilcoxon(x, y, zero_method="wilcox", alternative="greater")
+        out.append({"model_a": a, "model_b": b, "metric": f"{metric}@{config.EVAL_K}", "mean_a": float(x.mean()),
+                    "mean_b": float(y.mean()), "a_better_queries": int((x > y).sum()),
+                    "b_better_queries": int((x < y).sum()), "ties": int((x == y).sum()),
+                    "wilcoxon_statistic": float(stat), "p_value": float(p)})
+    return out

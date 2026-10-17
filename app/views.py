@@ -21,12 +21,13 @@ def home():
             pills=["Content-based", "Clustering-based", "Hybrid", f"{m['clustering']['k']} clusters",
                    "TF-IDF + SVD", "KMeans · DBSCAN"])
     rated = b[b["is_rated"]]
+    n_broad = b.loc[b["primary_genre"] != "Unknown", "primary_genre"].nunique()
+    n_fine = data.cleaning_report()["final_coverage"]["fine_genres"]
     ui.kpi_row([
         ("Books", f"{len(b):,}", "Unique titles after merging and de-duplicating the two files"),
         ("Average rating", f"{rated['rating'].mean():.2f} ★", f"Across {len(rated):,} rated books"),
         ("Total reviews", f"{b['num_reviews'].sum() / 1e6:.2f} M", "Sum of review counts"),
-        ("Genres", f"{b.loc[b['primary_genre'] != 'Unknown', 'primary_genre'].nunique()} · 876",
-         "17 broad genres, mapped from 876 fine Audible genres"),
+        ("Genres", f"{n_broad} · {n_fine}", f"{n_broad} broad genres, mapped from {n_fine} fine Audible genres"),
         ("Hidden gems", f"{int(b['hidden_gem'].sum()):,}", "Rated 4.5+ by 5–65 reviewers"),
     ])
     st.write("")
@@ -128,22 +129,22 @@ def similar():
 
 
 # ---------------------------------------------------------------- personalised
+# Quick-start presets: taste fields, plus any filters to preset (everything else is reset to defaults).
 SCENARIOS = {
-    "New listener who likes sci-fi": {"fy-sub": ["Science Fiction", "Space Opera Science Fiction",
-                                                 "Hard Science Fiction", "Dystopian Science Fiction",
-                                                 "Adventure Science Fiction"], "fy-genres": [], "fy-authors": [],
-                                      "fy-liked": []},
-    "Thriller fan": {"fy-genres": ["Mystery, Thriller & Horror"], "fy-sub": ["Psychological Thrillers",
-                                                                             "Crime Thrillers"],
-                     "fy-authors": ["Lee Child"], "fy-liked": []},
-    "Self-improvement, short listens": {"fy-genres": ["Personal Development"], "fy-sub": [], "fy-authors": [],
-                                        "fy-liked": [], "fy-filter-hours": 6},
+    "New listener who likes sci-fi": ({"fy-sub": ["Science Fiction", "Space Opera Science Fiction",
+                                                  "Hard Science Fiction", "Dystopian Science Fiction",
+                                                  "Adventure Science Fiction"]}, {}),
+    "Thriller fan": ({"fy-genres": ["Mystery, Thriller & Horror"],
+                      "fy-sub": ["Psychological Thrillers", "Crime Thrillers"], "fy-authors": ["Lee Child"]}, {}),
+    "Self-improvement, short listens": ({"fy-genres": ["Personal Development"]}, {"hours": 6}),
 }
+TASTE_KEYS = ["fy-genres", "fy-sub", "fy-authors", "fy-liked"]
 
 
-def _apply_scenario(preset: dict):
-    for k, v in preset.items():
-        st.session_state[k] = v
+def _apply_scenario(taste: dict, filters: dict):
+    for k in TASTE_KEYS:
+        st.session_state[k] = taste.get(k, [])
+    data.reset_filters("fy-filter", **filters)
 
 
 def for_you():
@@ -154,12 +155,12 @@ def for_you():
             "Works with no reading history: pick any mix of genres, sub-genres, authors and books you have liked.")
     st.caption("Quick start:")
     cols = st.columns(len(SCENARIOS) + 1)
-    for col, (name, preset) in zip(cols, SCENARIOS.items()):
-        col.button(name, width="stretch", key=f"sc-{name}", on_click=_apply_scenario, args=(preset,))
+    for col, (name, (taste, filters)) in zip(cols, SCENARIOS.items()):
+        col.button(name, width="stretch", key=f"sc-{name}", on_click=_apply_scenario, args=(taste, filters))
     cols[-1].button("Clear", width="stretch", icon=":material/restart_alt:", on_click=_apply_scenario,
-                    args=({"fy-genres": [], "fy-sub": [], "fy-authors": [], "fy-liked": [], "fy-filter-hours": "Any"},))
+                    args=({}, {}), help="Clear your taste and reset the filters")
 
-    for k in ["fy-genres", "fy-sub", "fy-authors", "fy-liked"]:
+    for k in TASTE_KEYS:
         st.session_state.setdefault(k, [])
     st.session_state.setdefault("fy-n", 12)
     c1, c2 = st.columns(2)
@@ -228,7 +229,8 @@ def explore():
             (f"{d['mean']:.2f} ★", f"average rating; median {d['median']:.1f}. Ratings are compressed at the top."),
             (f"{d['share_4_5_plus']:.0%}", "of rated books score 4.5 or more; only "
                                            f"{d['share_below_4']:.1%} are below 4.0."),
-            ("33%", "of books with fewer than 10 reviews are perfect 5.0s. A raw 5.0 is mostly a small sample."),
+            (f"{t['share_5_star'].iloc[0]:.0%}", "of books with fewer than 10 reviews are perfect 5.0s. A raw 5.0 "
+                                                  "is mostly a small sample."),
         ])
         st.write("")
         c1, c2 = st.columns(2)
@@ -255,18 +257,35 @@ def explore():
                      color_discrete_sequence=["#0ea5e9"])
         fig.update_xaxes(range=[2.5, 5.05])
         ui.chart_card(fig, "Rating by genre", height=520)
+        top = eda.q1_top_rated_books(b, 12)
+        top = top.assign(label=top["title"].str.split(r":| \(", regex=True).str[0].str[:50] + " — " + top["author"])
+        fig = px.bar(top.iloc[::-1], x="weighted_rating", y="label", orientation="h",
+                     hover_data={"rating": ":.1f", "num_reviews": ":,", "label": False},
+                     labels={"label": "", "weighted_rating": "weighted rating"}, color_discrete_sequence=["#f59e0b"])
+        fig.update_xaxes(range=[top["weighted_rating"].min() - 0.03, top["weighted_rating"].max() + 0.01])
+        ui.chart_card(fig, "Top-rated books", "Weighted rating, books with 100+ reviews", height=460)
+        with st.expander("Statistical tests", icon=":material/functions:"):
+            st.caption("Non-parametric tests: ratings are bounded and heavily skewed, so normality-based tests "
+                       "do not apply.")
+            stt = eda.statistical_tests(b)
+            st.dataframe(stt.style.format({"statistic": "{:,.3f}", "p_value": "{:.1e}"}), hide_index=True,
+                         width="stretch")
         c = eda.correlation_table(b)
         fig = px.imshow(c.round(2), text_auto=True, color_continuous_scale="RdBu_r", zmin=-1, zmax=1, aspect="auto")
-        ui.chart_card(fig, "Correlations (Spearman)", "Price follows listening time (0.66); neither moves ratings",
-                      height=460)
+        ui.chart_card(fig, "Correlations (Spearman)", f"Price follows listening time "
+                      f"({c.loc['Price', 'Listening time']:.2f}); neither moves ratings", height=460)
 
     with t3:
         a = eda.q2_top_authors(b).head(20).reset_index()
+        common = eda.q2_most_common_authors(b, 15).reset_index()
         tpop, spop = eda.q8_author_popularity(b)
+        top_a, top_b = a.iloc[0], a.iloc[1]
+        prolific = common.iloc[0]
         ui.insight_cards([
-            ("4.87 ★", "<b>Tracey West</b> tops authors with 3+ well-reviewed books; Tui T. Sutherland is 4.86 "
-                       "across 9."),
-            ("13 books", "by <b>Julia Donaldson</b>, all averaging 4.77 with 30k reviews: top-rated at scale."),
+            (f"{top_a['avg_rating']:.2f} ★", f"<b>{top_a['author']}</b> tops authors with 3+ well-reviewed books; "
+                                            f"{top_b['author']} is {top_b['avg_rating']:.2f} across {top_b['books']}."),
+            (f"{prolific['books']} books", f"by <b>{prolific['author']}</b>, the most titles of any author "
+                                           f"(average {prolific['avg_rating']:.2f} ★)."),
             (f"ρ = {spop['spearman_rho']:.2f}", "between author popularity and rating: an established author is a "
                                                  "safer bet, not a guarantee."),
         ])
@@ -286,14 +305,20 @@ def explore():
             fig.update_traces(line=dict(color="#8b5cf6", width=3))
             ui.chart_card(fig, "Author popularity vs rating", "Each book compared with its author's other books",
                           height=560, tickangle=-20)
+        fig = px.bar(common.iloc[::-1], x="books", y="author", orientation="h",
+                     hover_data={"avg_rating": ":.2f", "total_reviews": ":,"},
+                     labels={"author": "", "books": "titles in the catalogue"}, color_discrete_sequence=["#64748b"])
+        ui.chart_card(fig, "Most common authors", "Authors with the most titles; hover for rating and reviews",
+                      height=480)
 
     with t4:
         pl = eda.price_and_length(b).reset_index()
         rep_price = data.cleaning_report()["final_coverage"]["price_decimal_shift_corrected"]
+        dear, lang = pl.set_index("primary_genre").loc["History"], pl.set_index("primary_genre").loc["Language & Education"]
         ui.insight_cards([
-            ("₹1,003", "median price of <b>History</b>, the longest genre (16.7 h). Audiobooks are priced by "
-                       "length."),
-            ("25%", "of <b>Language & Education</b> titles are free taster lessons."),
+            (f"₹{dear['median_price']:,.0f}", f"median price of <b>History</b>, the longest genre "
+                                              f"({dear['median_hours']:.1f} h). Audiobooks are priced by length."),
+            (f"{lang['free_share']:.0%}", "of <b>Language & Education</b> titles are free taster lessons."),
             (f"₹{b['price'].median():,.0f}", "median price across the catalogue."),
         ])
         st.write("")
@@ -455,6 +480,13 @@ def performance():
         fig.update_yaxes(categoryorder="array", categoryarray=list(ab["features"])[::-1])
         ui.chart_card(fig, "Which features matter?", "Content-based model, one feature block added at a time",
                       height=380)
+    sig = pd.DataFrame(m.get("significance", []))
+    if not sig.empty:
+        st.markdown("#### Is the difference real?")
+        st.caption("Wilcoxon signed-rank test on the per-book nDCG@10 of the same test books (paired, "
+                   "non-parametric). A small p-value means model A beats model B for real, not by chance.")
+        st.dataframe(sig.style.format({"mean_a": "{:.3f}", "mean_b": "{:.3f}", "wilcoxon_statistic": "{:,.0f}",
+                                       "p_value": "{:.1e}"}), hide_index=True, width="stretch")
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("#### Rating prediction (RMSE)")

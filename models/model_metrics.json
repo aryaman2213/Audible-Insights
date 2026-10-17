@@ -338,6 +338,44 @@
       "uses_fine_genres": true
     }
   ],
+  "significance": [
+    {
+      "model_a": "Hybrid (genre-blind)",
+      "model_b": "Content-based (genre-blind)",
+      "metric": "ndcg@10",
+      "mean_a": 0.2396107195762707,
+      "mean_b": 0.21387613402733754,
+      "a_better_queries": 261,
+      "b_better_queries": 138,
+      "ties": 197,
+      "wilcoxon_statistic": 55037.0,
+      "p_value": 2.5687712456451078e-11
+    },
+    {
+      "model_a": "Hybrid (genre-blind)",
+      "model_b": "Clustering-based (genre-blind)",
+      "metric": "ndcg@10",
+      "mean_a": 0.2396107195762707,
+      "mean_b": 0.10689645821813623,
+      "a_better_queries": 368,
+      "b_better_queries": 99,
+      "ties": 129,
+      "wilcoxon_statistic": 93932.5,
+      "p_value": 1.2365403574564e-41
+    },
+    {
+      "model_a": "Content-based (genre-blind)",
+      "model_b": "Random",
+      "metric": "ndcg@10",
+      "mean_a": 0.21387613402733754,
+      "mean_b": 0.041804383423670745,
+      "a_better_queries": 402,
+      "b_better_queries": 57,
+      "ties": 137,
+      "wilcoxon_statistic": 99391.5,
+      "p_value": 1.0935504903495158e-60
+    }
+  ],
   "feature_ablation": [
     {
       "features": "text (title + description)",

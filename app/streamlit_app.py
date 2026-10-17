@@ -33,6 +33,13 @@ import views  # noqa: E402
 st.set_page_config(page_title="Audible Insights", page_icon=":material/headphones:", layout="wide")
 ui.install_theme()
 
+# Streamlit forgets a widget's value on runs where its page is not shown. Re-assigning keeps the chosen book,
+# taste and filters when the user comes back (buttons are skipped: their state cannot be assigned).
+PERSIST_PREFIXES = ("similar-", "fy-", "cluster-pick")
+for key in list(st.session_state.keys()):
+    if isinstance(key, str) and key.startswith(PERSIST_PREFIXES):
+        st.session_state[key] = st.session_state[key]
+
 missing = [p for p in data.ARTIFACTS if not p.exists()]
 if missing:
     st.error("Data or models not found. From the project root run `python pipeline.py` and then `python train.py`.")

@@ -44,6 +44,20 @@ def q1_fine_genres(b: pd.DataFrame, top=15) -> pd.Series:
     return fine.value_counts().head(top)
 
 
+def q1_top_rated_books(b: pd.DataFrame, n=15, min_reviews=100) -> pd.DataFrame:
+    """Top-rated books by weighted rating among books with enough reviews for the rating to be trusted."""
+    r = b[b["is_rated"] & (b["num_reviews"] >= min_reviews)]
+    return r.sort_values(["weighted_rating", "num_reviews"], ascending=False).head(n)[
+        ["title", "author", "primary_genre", "rating", "num_reviews", "weighted_rating"]]
+
+
+def q2_most_common_authors(b: pd.DataFrame, n=15) -> pd.DataFrame:
+    """Authors with the most titles in the catalogue, with their average rating and total reviews."""
+    a = b.groupby("author").agg(books=("title", "size"), avg_rating=("rating", "mean"),
+                                total_reviews=("num_reviews", "sum"))
+    return a.sort_values(["books", "total_reviews"], ascending=False).head(n)
+
+
 def q2_top_authors(b: pd.DataFrame, min_books=3, min_reviews=20) -> pd.DataFrame:
     """Authors with at least `min_books` rated books (each with >= min_reviews), ranked by mean rating, ties broken
     by total reviews. A single 5-star book with 3 reviews does not make a top author."""
@@ -158,6 +172,85 @@ def scenario_hidden_gems(b: pd.DataFrame, n=15) -> pd.DataFrame:
     return g.sort_values(["weighted_rating", "num_reviews"], ascending=False).head(n)
 
 
+# ---------------------------------------------------------------- data overview + statistics
+def raw_overview() -> pd.DataFrame:
+    """Shape, types, memory and missing values of the two raw files (EDA guide: basic characteristics)."""
+    rows = []
+    for name, path in [("Audible_Catlog.csv", config.CATALOG_CSV), ("Audible_Catlog_Advanced_Features.csv",
+                                                                     config.ADVANCED_CSV)]:
+        df = pd.read_csv(path)
+        for col in df.columns:
+            s = df[col]
+            sentinel = int(s.astype(str).str.strip().isin(["-1", "-1.0"]).sum())
+            rows.append({"file": name, "column": col, "dtype": str(s.dtype), "non_null": int(s.notna().sum()),
+                         "missing (NaN)": int(s.isna().sum()), "'-1' sentinel": sentinel,
+                         "unique": int(s.nunique())})
+    return pd.DataFrame(rows)
+
+
+def raw_memory() -> dict:
+    return {p.name: f"{pd.read_csv(p).memory_usage(deep=True).sum() / 1e6:.1f} MB"
+            for p in (config.CATALOG_CSV, config.ADVANCED_CSV)}
+
+
+def numeric_summary(b: pd.DataFrame) -> pd.DataFrame:
+    """Distribution of every numeric field after cleaning: mean, spread, min/max, skew (variability check)."""
+    cols = {"rating": "Rating", "num_reviews": "Reviews", "price": "Price (₹)", "listening_minutes": "Listening (min)",
+            "audible_rank": "Audible rank", "weighted_rating": "Weighted rating"}
+    d = b[list(cols)].rename(columns=cols)
+    out = d.describe().T
+    out["skew"] = d.skew()
+    out["missing"] = d.isna().sum()
+    return out
+
+
+def outlier_table(b: pd.DataFrame) -> pd.DataFrame:
+    """IQR outliers (beyond 1.5 × IQR) per numeric field after cleaning, and what was done about them."""
+    action = {"Reviews": "kept: real blockbusters; log-scaled (popularity) where used",
+              "Price (₹)": "10× decimal-shift errors already fixed; the rest are genuinely long or premium titles",
+              "Listening (min)": "kept: genuine long books and collections",
+              "Rating": "kept: low ratings are real (mostly books with few reviews)"}
+    rows = []
+    for col, label in [("rating", "Rating"), ("num_reviews", "Reviews"), ("price", "Price (₹)"),
+                       ("listening_minutes", "Listening (min)")]:
+        s = b[col].dropna()
+        q1, q3 = s.quantile([0.25, 0.75])
+        lo, hi = q1 - 1.5 * (q3 - q1), q3 + 1.5 * (q3 - q1)
+        n = int(((s < lo) | (s > hi)).sum())
+        rows.append({"field": label, "lower fence": round(lo, 1), "upper fence": round(hi, 1), "outliers": n,
+                     "share": n / len(s), "action": action[label]})
+    return pd.DataFrame(rows)
+
+
+def statistical_tests(b: pd.DataFrame) -> pd.DataFrame:
+    """Non-parametric tests (ratings are bounded and heavily left-skewed, so normality-based tests do not apply)."""
+    rated = b[b["is_rated"]]
+    known = rated[rated["primary_genre"] != config.UNKNOWN_GENRE]
+    rows = []
+    groups = [g["rating"].to_numpy() for _, g in known.groupby("primary_genre")]
+    h, p = stats.kruskal(*groups)
+    rows.append({"question": "Do ratings differ across the 17 genres?", "test": "Kruskal–Wallis H",
+                 "why": "compares >2 groups without assuming normality", "statistic": h, "p_value": p,
+                 "result": "yes: genre matters" if p < 0.05 else "no significant difference"})
+    few, many = rated.loc[rated["num_reviews"] < 50, "rating"], rated.loc[rated["num_reviews"] >= 1000, "rating"]
+    u, p = stats.mannwhitneyu(few, many, alternative="two-sided")
+    rows.append({"question": "Are books with 1,000+ reviews rated differently from books with <50?",
+                 "test": "Mann–Whitney U", "why": "two independent, skewed samples", "statistic": u, "p_value": p,
+                 "result": f"yes: median {many.median():.1f} vs {few.median():.1f}, and far less spread"
+                 if p < 0.05 else "no significant difference"})
+    rho, p = stats.spearmanr(rated["num_reviews"], rated["rating"])
+    rows.append({"question": "Is rating related to review count?", "test": "Spearman ρ",
+                 "why": "monotonic relation, robust to outliers", "statistic": rho, "p_value": p,
+                 "result": f"weak positive (ρ = {rho:.2f})"})
+    ft = b[b["is_free"].notna() & b["primary_genre"].ne(config.UNKNOWN_GENRE)]
+    tab = pd.crosstab(ft["primary_genre"], ft["is_free"])
+    chi2, p, _, _ = stats.chi2_contingency(tab)
+    rows.append({"question": "Does the share of free titles depend on genre?", "test": "Chi-square independence",
+                 "why": "two categorical variables", "statistic": chi2, "p_value": p,
+                 "result": "yes: free titles concentrate in Language & Education" if p < 0.05 else "no"})
+    return pd.DataFrame(rows)
+
+
 # ---------------------------------------------------------------- own analysis
 def correlation_table(b: pd.DataFrame) -> pd.DataFrame:
     r = b[b["is_rated"]].assign(log_reviews=lambda d: np.log1p(d["num_reviews"]),
@@ -194,6 +287,19 @@ def chart_fine_genres(b):
     ax.set(title="Most common fine Audible genres", xlabel="books", ylabel="")
     fig.tight_layout()
     return save(fig, "q1_fine_genres")
+
+
+def chart_top_rated_books(b, n=12):
+    t = q1_top_rated_books(b, n)
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    labels = (t["title"].str.split(r":| \(", regex=True).str[0].str[:45] + " — " + t["author"].str[:22])[::-1]
+    ax.barh(labels, t["weighted_rating"][::-1], color=PALETTE[3])
+    for i, (w, r, n_) in enumerate(zip(t["weighted_rating"][::-1], t["rating"][::-1], t["num_reviews"][::-1])):
+        ax.text(w + 0.003, i, f"{r:.1f} stars · {n_:,} reviews", va="center", fontsize=8.5)
+    ax.set_xlim(t["weighted_rating"].min() - 0.05, t["weighted_rating"].max() + 0.12)
+    ax.set(title="Top-rated books (weighted rating, 100+ reviews)", xlabel="weighted rating", ylabel="")
+    fig.tight_layout()
+    return save(fig, "q1_top_rated_books")
 
 
 def chart_top_authors(b, top=15):
@@ -345,7 +451,7 @@ def chart_price_length(b):
     k = KNOWN(b)
     fig, ax = plt.subplots(1, 2, figsize=(14, 4.8))
     sns.histplot(b["price"], bins=60, ax=ax[0], color=PALETTE[3])
-    ax[0].set(title="Price distribution (₹, after the decimal-shift fix)", xlabel="price (₹)", ylabel="books")
+    ax[0].set(title="Price distribution (INR, after the decimal-shift fix)", xlabel="price (INR)", ylabel="books")
     order = k.groupby("primary_genre")["listening_minutes"].median().sort_values().index
     sns.boxplot(data=k.assign(hours=k["listening_minutes"] / 60), y="primary_genre", x="hours", order=order,
                 ax=ax[1], color=PALETTE[6], fliersize=1.5)

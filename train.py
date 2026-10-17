@@ -35,9 +35,14 @@ def main():
 
     print("3/5 comparing models (test queries)")
     rankers = E.build_rankers(books, blocks, quality, clusters.labels, clusters.text_labels, hybrid_weights)
-    comparison = E.evaluate_rankers(books, {n: r for n, (r, _) in rankers.items()})
+    per_query = {}
+    comparison = E.evaluate_rankers(books, {n: r for n, (r, _) in rankers.items()}, per_query=per_query)
     comparison["uses_fine_genres"] = [rankers[n][1] for n in comparison["model"]]
     print(comparison.round(3).to_string(index=False))
+    sig = E.significance(per_query, [("Hybrid (genre-blind)", "Content-based (genre-blind)"),
+                                     ("Hybrid (genre-blind)", "Clustering-based (genre-blind)"),
+                                     ("Content-based (genre-blind)", "Random")])
+    print(pd.DataFrame(sig).round(4).to_string(index=False))
 
     print("4/5 feature ablation + rating prediction")
     ablation = E.feature_ablation(books, blocks)
@@ -68,6 +73,7 @@ def main():
         "hybrid_weights": hybrid_weights,
         "hybrid_tuning": table(tuning),
         "model_comparison": table(comparison),
+        "significance": sig,
         "feature_ablation": table(ablation),
         "rating_prediction": table(rmse),
         "eval_settings": {"k": config.EVAL_K, "queries": config.EVAL_QUERIES,

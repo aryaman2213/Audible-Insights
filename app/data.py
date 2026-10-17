@@ -103,8 +103,8 @@ def mask(f: Filters) -> np.ndarray:
         m &= b["num_reviews"].to_numpy() >= f.min_reviews
     if f.max_price is not None:
         m &= b["price"].fillna(0).to_numpy() <= f.max_price
-    if f.max_hours is not None:
-        m &= (b["listening_minutes"].fillna(0).to_numpy() <= f.max_hours * 60)
+    if f.max_hours is not None:   # books of unknown length are left out: they might be longer
+        m &= (b["listening_minutes"].to_numpy() <= f.max_hours * 60)
     if f.gems_only:
         m &= b["hidden_gem"].to_numpy()
     if f.exclude_authors:
@@ -114,6 +114,12 @@ def mask(f: Filters) -> np.ndarray:
 
 FILTER_DEFAULTS = {"genres": [], "rating": 0.0, "reviews": 0, "price": "Any", "hours": "Any", "unrated": True,
                    "gems": False}
+
+
+def reset_filters(key: str, **overrides):
+    """Put a page's filters back to their defaults (optionally presetting some); safe inside button callbacks."""
+    for name, value in FILTER_DEFAULTS.items():
+        st.session_state[f"{key}-{name}"] = overrides.get(name, value)
 
 
 def filter_controls(key: str, show_genre=True) -> Filters:
@@ -131,7 +137,9 @@ def filter_controls(key: str, show_genre=True) -> Filters:
         price = c4.select_slider("Maximum price", ["Any", "Free", 300, 500, 700, 1000, 1500, 2500], key=f"{key}-price",
                                  format_func=lambda v: v if isinstance(v, str) else f"₹{v:,}")
         hrs = c5.select_slider("Maximum length", ["Any", 2, 4, 6, 8, 12, 20, 40], key=f"{key}-hours",
-                               format_func=lambda v: v if isinstance(v, str) else f"{v} hours")
+                               format_func=lambda v: v if isinstance(v, str) else f"{v} hours",
+                               help="Only listening time known for about a third of books; a length limit leaves "
+                                    "out books of unknown length.")
         with c6:
             include_unrated = st.toggle("Include unrated books", key=f"{key}-unrated")
             gems = st.toggle("Hidden gems only", key=f"{key}-gems",

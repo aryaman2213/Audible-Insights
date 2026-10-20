@@ -10,12 +10,17 @@ and AWS EC2 (Docker).
 | Data | 10,832 raw rows → **6,056 unique books**. 2,022 junk descriptions removed, 132 mis-scaled prices fixed, 876 fine genres mapped to 17 broad genres |
 | NLP | TF-IDF (1–2-grams) on title + description. A genre classifier fills in genres for 218 books (CV accuracy 52% over 17 classes, 70% on the predictions kept) |
 | Clustering | KMeans **k = 16** (silhouette 0.339). DBSCAN reproduces the same clusters (adjusted Rand index **0.98**) |
-| Best recommender | **Hybrid**: precision@10 **0.218**, nDCG@10 **0.240** without genre labels (5.2× random). Best fair feature set (text + genre + author): precision@10 **0.360** |
+| Best recommender | **Hybrid**: as accurate as content-based without genre labels (precision@10 **0.194**, 4.6× random; nDCG@10 **0.216**) but recommends significantly better-rated books. Best fair feature set (text + genre + author): precision@10 **0.360** |
 | Rating prediction | k-NN + author mean: RMSE **0.251** vs 0.274 for the global mean (−8%) |
-| Significance | Hybrid beats content-based on 261 vs 138 test books (Wilcoxon signed-rank, p < 0.001) |
-| Quality checks | 163-check end-to-end browser test of every page and control (`tests/e2e_app.py`); pipeline is byte-for-byte reproducible |
+| Significance | Wilcoxon signed-rank: hybrid vs content accuracy not different (p = 0.69); hybrid's picks rated higher on 377 vs 185 test books (p < 0.001) |
+| Quality checks | 172-check end-to-end browser test of every page and control (`tests/e2e_app.py`); pipeline is byte-for-byte reproducible |
 
-- **App:** seven pages: Discover, Similar books, For you, Explore, Clusters, Model performance, About
+- **App:** seven pages: Discover, Similar books, For you, Explore, Clusters, Model performance, About. Features:
+  - search from the home page straight into recommendations, or "Surprise me";
+  - choose the model, and compare the three side by side;
+  - every pick explains why it was chosen (shared sub-genres, same author, same cluster);
+  - filters for genre, rating, reviews, price, length and hidden gems;
+  - quick-start taste presets, and a CSV download of any list.
 - **EDA:** [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (executed) answers every question in the brief
 - **Report:** [`reports/Audible_Insights_Report.pdf`](reports/Audible_Insights_Report.pdf)
 - **AWS guide:** [`deploy/AWS_DEPLOY.md`](deploy/AWS_DEPLOY.md)
@@ -120,16 +125,16 @@ genres, sub-genres and authors, then rank with the hybrid score.
 ### 5. Evaluation (`src/evaluation.py`, `train.py`)
 The data has **no per-user ratings**, so the system can't measure "did this user like it". Instead, a
 recommendation counts as **relevant** when it shares at least one of the query book's 876 fine Audible genres
-(*strictly relevant*: two). The test set is 596 books, scored on the top 10 recommendations, using a separate seed
-from the tuning queries.
+(*strictly relevant*: two). The test set is 596 books, scored on the top 10 recommendations. The hybrid weights
+were tuned on 300 separate validation books that never appear in the test set.
 
 | Model (genre-blind: text only) | precision@10 | recall@10 | nDCG@10 | avg rating of recs | coverage |
 |---|---|---|---|---|---|
 | Random | 0.042 | 0.005 | 0.042 | 4.46 | 95% |
 | Most popular | 0.020 | 0.005 | 0.021 | 4.89 | 1% |
 | Content-based | 0.191 | 0.046 | 0.214 | 4.46 | 89% |
-| Clustering-based | 0.110 | 0.019 | 0.107 | 4.77 | 9% |
-| **Hybrid** | **0.218** | **0.051** | **0.240** | 4.49 | 88% |
+| Clustering-based | 0.073 | 0.016 | 0.077 | 4.77 | 9% |
+| **Hybrid** | **0.194** | **0.045** | **0.216** | **4.50** | 88% |
 
 "Genre-blind" models use only titles and descriptions, so they can't see the labels being scored. The production
 (full-feature) versions also use the fine genres; they score 0.86 precision@10, an optimistic upper bound because
@@ -144,14 +149,21 @@ those genres define relevance.
 | + broad genre | 0.350 | 0.364 |
 | **+ broad genre + author** | **0.360** | **0.382** |
 
-**Is the hybrid really better?** A Wilcoxon signed-rank test on the per-book nDCG@10 of the same 596 test books
-(paired and non-parametric, because per-book scores are bounded and far from normal):
+In the genre-blind test the clustering-based and hybrid models use clusters learned from description text alone. The
+production clusters use genre features, and evaluating with them would leak the labels being scored. With those
+leaky clusters the hybrid appeared to beat content-based on accuracy; with text-only clusters it does not.
 
-| comparison | wins / losses / ties | p-value |
-|---|---|---|
-| Hybrid vs content-based | 261 / 138 / 197 | < 0.001 |
-| Hybrid vs clustering-based | 368 / 99 / 129 | < 0.001 |
-| Content-based vs random | 402 / 57 / 137 | < 0.001 |
+**Are the differences real?** Two-sided Wilcoxon signed-rank tests on the same 596 test books (paired and
+non-parametric, because per-book scores are bounded and far from normal):
+
+| comparison | metric | A better / B better / ties | p-value |
+|---|---|---|---|
+| Hybrid vs content-based | nDCG@10 | 204 / 196 / 196 | 0.69 (no difference) |
+| Hybrid vs content-based | avg rating of picks | 377 / 185 / 34 | < 0.001 |
+| Hybrid vs clustering-based | nDCG@10 | 361 / 97 / 138 | < 0.001 |
+| Content-based vs random | nDCG@10 | 402 / 57 / 137 | < 0.001 |
+
+**Final model: the hybrid.** It's as accurate as pure content-based and recommends significantly better-rated books.
 
 **Rating prediction** (1,045 held-out books with 5+ reviews):
 
@@ -190,7 +202,7 @@ Full answers, with charts, are in [`notebooks/eda.ipynb`](notebooks/eda.ipynb).
 ## Testing
 ```bash
 streamlit run app/streamlit_app.py --server.port 8521      # terminal 1
-python tests/e2e_app.py --url http://localhost:8521        # terminal 2: 163 checks, about 4 minutes
+python tests/e2e_app.py --url http://localhost:8521        # terminal 2: 172 checks, about 5 minutes
 ```
 The test drives the real app in Chrome:
 - every example button, model switch, slider and filter;

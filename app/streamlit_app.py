@@ -57,3 +57,4 @@ pages = {
 }
 st.session_state["pages"] = pages
 st.navigation(list(pages.values()), position="top").run()
+ui.footer()

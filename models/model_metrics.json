@@ -98,154 +98,154 @@
       "content": 0.5,
       "cluster": 0.0,
       "quality": 0.5,
-      "ndcg@10": 0.7563,
-      "precision@10": 0.6966,
-      "avg_rating_of_recs": 4.6734,
-      "objective": 0.8345
+      "ndcg@10": 0.7611,
+      "precision@10": 0.7152,
+      "avg_rating_of_recs": 4.6799,
+      "objective": 0.8397
     },
     {
       "content": 0.5,
       "cluster": 0.05,
       "quality": 0.45,
-      "ndcg@10": 0.779,
-      "precision@10": 0.7205,
-      "avg_rating_of_recs": 4.6632,
-      "objective": 0.8566
+      "ndcg@10": 0.783,
+      "precision@10": 0.7374,
+      "avg_rating_of_recs": 4.6686,
+      "objective": 0.8609
     },
     {
       "content": 0.5,
       "cluster": 0.1,
       "quality": 0.4,
-      "ndcg@10": 0.8072,
-      "precision@10": 0.75,
-      "avg_rating_of_recs": 4.6489,
-      "objective": 0.8838
+      "ndcg@10": 0.8053,
+      "precision@10": 0.762,
+      "avg_rating_of_recs": 4.6569,
+      "objective": 0.8824
     },
     {
       "content": 0.5,
       "cluster": 0.2,
       "quality": 0.3,
-      "ndcg@10": 0.851,
-      "precision@10": 0.797,
-      "avg_rating_of_recs": 4.6209,
-      "objective": 0.9258
+      "ndcg@10": 0.8416,
+      "precision@10": 0.8017,
+      "avg_rating_of_recs": 4.6283,
+      "objective": 0.9169
     },
     {
       "content": 0.6,
       "cluster": 0.0,
       "quality": 0.4,
-      "ndcg@10": 0.8382,
-      "precision@10": 0.7839,
-      "avg_rating_of_recs": 4.6293,
-      "objective": 0.9135
+      "ndcg@10": 0.8314,
+      "precision@10": 0.7912,
+      "avg_rating_of_recs": 4.638,
+      "objective": 0.9072
     },
     {
       "content": 0.6,
       "cluster": 0.05,
       "quality": 0.35,
-      "ndcg@10": 0.8539,
-      "precision@10": 0.7993,
-      "avg_rating_of_recs": 4.6188,
-      "objective": 0.9285
+      "ndcg@10": 0.8437,
+      "precision@10": 0.804,
+      "avg_rating_of_recs": 4.6246,
+      "objective": 0.9187
     },
     {
       "content": 0.6,
       "cluster": 0.1,
       "quality": 0.3,
-      "ndcg@10": 0.8698,
-      "precision@10": 0.8154,
-      "avg_rating_of_recs": 4.6029,
-      "objective": 0.9433
+      "ndcg@10": 0.8547,
+      "precision@10": 0.8155,
+      "avg_rating_of_recs": 4.6114,
+      "objective": 0.9288
     },
     {
       "content": 0.6,
       "cluster": 0.2,
       "quality": 0.2,
-      "ndcg@10": 0.8886,
-      "precision@10": 0.8342,
-      "avg_rating_of_recs": 4.5671,
-      "objective": 0.9597
+      "ndcg@10": 0.8728,
+      "precision@10": 0.834,
+      "avg_rating_of_recs": 4.5843,
+      "objective": 0.9451
     },
     {
       "content": 0.7,
       "cluster": 0.0,
       "quality": 0.3,
-      "ndcg@10": 0.8831,
-      "precision@10": 0.8292,
-      "avg_rating_of_recs": 4.5874,
-      "objective": 0.9556
+      "ndcg@10": 0.8663,
+      "precision@10": 0.8269,
+      "avg_rating_of_recs": 4.5984,
+      "objective": 0.9396
     },
     {
       "content": 0.7,
       "cluster": 0.05,
       "quality": 0.25,
-      "ndcg@10": 0.8875,
-      "precision@10": 0.8332,
-      "avg_rating_of_recs": 4.5731,
-      "objective": 0.9591
+      "ndcg@10": 0.8718,
+      "precision@10": 0.833,
+      "avg_rating_of_recs": 4.587,
+      "objective": 0.9442
     },
     {
       "content": 0.7,
       "cluster": 0.1,
       "quality": 0.2,
-      "ndcg@10": 0.8918,
-      "precision@10": 0.8376,
-      "avg_rating_of_recs": 4.5576,
-      "objective": 0.9623
+      "ndcg@10": 0.8747,
+      "precision@10": 0.8367,
+      "avg_rating_of_recs": 4.5742,
+      "objective": 0.9463
     },
     {
       "content": 0.7,
       "cluster": 0.2,
       "quality": 0.1,
-      "ndcg@10": 0.8961,
-      "precision@10": 0.8419,
-      "avg_rating_of_recs": 4.5195,
-      "objective": 0.9641
+      "ndcg@10": 0.8793,
+      "precision@10": 0.8391,
+      "avg_rating_of_recs": 4.5397,
+      "objective": 0.9486
     },
     {
       "content": 0.8,
       "cluster": 0.0,
       "quality": 0.2,
-      "ndcg@10": 0.8938,
-      "precision@10": 0.8403,
-      "avg_rating_of_recs": 4.5497,
-      "objective": 0.9638
+      "ndcg@10": 0.8763,
+      "precision@10": 0.8384,
+      "avg_rating_of_recs": 4.5677,
+      "objective": 0.9475
     },
     {
       "content": 0.8,
       "cluster": 0.05,
       "quality": 0.15,
-      "ndcg@10": 0.8957,
-      "precision@10": 0.8419,
-      "avg_rating_of_recs": 4.534,
-      "objective": 0.9647
+      "ndcg@10": 0.8775,
+      "precision@10": 0.8384,
+      "avg_rating_of_recs": 4.5522,
+      "objective": 0.9476
     },
     {
       "content": 0.8,
       "cluster": 0.1,
       "quality": 0.1,
-      "ndcg@10": 0.8963,
-      "precision@10": 0.8419,
-      "avg_rating_of_recs": 4.5126,
-      "objective": 0.9638
+      "ndcg@10": 0.8796,
+      "precision@10": 0.8394,
+      "avg_rating_of_recs": 4.5316,
+      "objective": 0.9484
     },
     {
       "content": 0.9,
       "cluster": 0.0,
       "quality": 0.1,
-      "ndcg@10": 0.897,
-      "precision@10": 0.8426,
-      "avg_rating_of_recs": 4.5076,
-      "objective": 0.9641
+      "ndcg@10": 0.8806,
+      "precision@10": 0.8404,
+      "avg_rating_of_recs": 4.5271,
+      "objective": 0.949
     },
     {
       "content": 0.9,
       "cluster": 0.05,
       "quality": 0.05,
-      "ndcg@10": 0.8999,
-      "precision@10": 0.844,
-      "avg_rating_of_recs": 4.4828,
-      "objective": 0.9654
+      "ndcg@10": 0.8821,
+      "precision@10": 0.8411,
+      "avg_rating_of_recs": 4.5048,
+      "objective": 0.949
     }
   ],
   "model_comparison": [
@@ -284,23 +284,23 @@
     },
     {
       "model": "Clustering-based (genre-blind)",
-      "precision@10": 0.1099,
-      "recall@10": 0.0194,
-      "ndcg@10": 0.1069,
-      "strict_precision@10": 0.0133,
-      "avg_rating_of_recs": 4.7655,
-      "catalogue_coverage": 0.086,
+      "precision@10": 0.073,
+      "recall@10": 0.0161,
+      "ndcg@10": 0.077,
+      "strict_precision@10": 0.0087,
+      "avg_rating_of_recs": 4.7747,
+      "catalogue_coverage": 0.085,
       "queries": 596,
       "uses_fine_genres": false
     },
     {
       "model": "Hybrid (genre-blind)",
-      "precision@10": 0.2183,
-      "recall@10": 0.0506,
-      "ndcg@10": 0.2396,
-      "strict_precision@10": 0.0534,
-      "avg_rating_of_recs": 4.4905,
-      "catalogue_coverage": 0.8762,
+      "precision@10": 0.194,
+      "recall@10": 0.0453,
+      "ndcg@10": 0.2158,
+      "strict_precision@10": 0.0498,
+      "avg_rating_of_recs": 4.4976,
+      "catalogue_coverage": 0.88,
       "queries": 596,
       "uses_fine_genres": false
     },
@@ -343,37 +343,53 @@
       "model_a": "Hybrid (genre-blind)",
       "model_b": "Content-based (genre-blind)",
       "metric": "ndcg@10",
-      "mean_a": 0.2396107195762707,
+      "test": "Wilcoxon (two-sided)",
+      "mean_a": 0.21580698913245513,
       "mean_b": 0.21387613402733754,
-      "a_better_queries": 261,
-      "b_better_queries": 138,
-      "ties": 197,
-      "wilcoxon_statistic": 55037.0,
-      "p_value": 2.5687712456451078e-11
+      "a_better_queries": 204,
+      "b_better_queries": 196,
+      "ties": 196,
+      "wilcoxon_statistic": 39181.5,
+      "p_value": 0.6913796964195091
     },
     {
       "model_a": "Hybrid (genre-blind)",
       "model_b": "Clustering-based (genre-blind)",
       "metric": "ndcg@10",
-      "mean_a": 0.2396107195762707,
-      "mean_b": 0.10689645821813623,
-      "a_better_queries": 368,
-      "b_better_queries": 99,
-      "ties": 129,
-      "wilcoxon_statistic": 93932.5,
-      "p_value": 1.2365403574564e-41
+      "test": "Wilcoxon (two-sided)",
+      "mean_a": 0.21580698913245513,
+      "mean_b": 0.07700361788019543,
+      "a_better_queries": 361,
+      "b_better_queries": 97,
+      "ties": 138,
+      "wilcoxon_statistic": 13387.5,
+      "p_value": 1.918843175393222e-43
     },
     {
       "model_a": "Content-based (genre-blind)",
       "model_b": "Random",
       "metric": "ndcg@10",
+      "test": "Wilcoxon (two-sided)",
       "mean_a": 0.21387613402733754,
       "mean_b": 0.041804383423670745,
       "a_better_queries": 402,
       "b_better_queries": 57,
       "ties": 137,
-      "wilcoxon_statistic": 99391.5,
-      "p_value": 1.0935504903495158e-60
+      "wilcoxon_statistic": 6178.5,
+      "p_value": 2.1871009806990316e-60
+    },
+    {
+      "model_a": "Hybrid (genre-blind)",
+      "model_b": "Content-based (genre-blind)",
+      "metric": "avg rating of picks",
+      "test": "Wilcoxon (two-sided)",
+      "mean_a": 4.494863574624481,
+      "mean_b": 4.4564005406413125,
+      "a_better_queries": 377,
+      "b_better_queries": 185,
+      "ties": 34,
+      "wilcoxon_statistic": 42018.5,
+      "p_value": 6.020475054685126e-22
     }
   ],
   "feature_ablation": [
@@ -483,6 +499,7 @@
     "relevant": "shares >= 1 fine Audible genre with the query",
     "strictly_relevant": "shares >= 2 fine genres",
     "pool": "books with listed genres",
-    "seed": 42
+    "seed": 42,
+    "validation": "300 books, disjoint from the 600 test books, used only to tune hybrid weights"
   }
 }

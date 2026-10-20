@@ -101,8 +101,8 @@ def mask(f: Filters) -> np.ndarray:
         m &= rated
     if f.min_reviews:
         m &= b["num_reviews"].to_numpy() >= f.min_reviews
-    if f.max_price is not None:
-        m &= b["price"].fillna(0).to_numpy() <= f.max_price
+    if f.max_price is not None:   # a book with an unknown price is left out, like an unknown length
+        m &= b["price"].to_numpy() <= f.max_price
     if f.max_hours is not None:   # books of unknown length are left out: they might be longer
         m &= (b["listening_minutes"].to_numpy() <= f.max_hours * 60)
     if f.gems_only:
@@ -110,6 +110,19 @@ def mask(f: Filters) -> np.ndarray:
     if f.exclude_authors:
         m &= ~b["author"].isin(f.exclude_authors).to_numpy()
     return m
+
+
+def gem_rule() -> str:
+    """'Rated 4.5+ by 5–65 reviewers', from the data (the upper bound is a review-count quantile)."""
+    g = books().loc[books()["hidden_gem"], "num_reviews"]
+    return f"Rated {config.HIDDEN_GEM_MIN_RATING}+ by {g.min()}–{g.max()} reviewers"
+
+
+def surprise_book() -> int:
+    """A random well-described, well-reviewed book for the 'Surprise me' button."""
+    b = books()
+    pool = b.index[b["has_description"] & (b["genre_source"] == "listed") & (b["num_reviews"] >= 100)]
+    return int(np.random.default_rng().choice(pool))
 
 
 FILTER_DEFAULTS = {"genres": [], "rating": 0.0, "reviews": 0, "price": "Any", "hours": "Any", "unrated": True,
@@ -142,8 +155,7 @@ def filter_controls(key: str, show_genre=True) -> Filters:
                                     "out books of unknown length.")
         with c6:
             include_unrated = st.toggle("Include unrated books", key=f"{key}-unrated")
-            gems = st.toggle("Hidden gems only", key=f"{key}-gems",
-                             help="Rated 4.5+ by 5–65 reviewers: loved, but not yet widely found.")
+            gems = st.toggle("Hidden gems only", key=f"{key}-gems", help=gem_rule() + ": loved, but not yet widely found.")
     return Filters(tuple(g), min_rating, min_reviews,
                    None if price == "Any" else (0 if price == "Free" else price),
                    None if hrs == "Any" else hrs, include_unrated, gems)
@@ -181,14 +193,17 @@ def explain(rec_df: pd.DataFrame, query_ids) -> dict:
     return out
 
 
-def explain_profile(rec_df: pd.DataFrame, genres, authors, liked_ids) -> dict:
+def explain_profile(rec_df: pd.DataFrame, genres, authors, liked_ids, sub_genres=()) -> dict:
     base = explain(rec_df, liked_ids) if liked_ids else {}
     out = {}
     for idx, r in rec_df.iterrows():
         reasons = []
         if r["author"] in authors:
             reasons.append("an author you like")
-        if r["primary_genre"] in genres:
+        subs = sorted(_genre_set(r["genres"]) & set(sub_genres))
+        if subs:
+            reasons.append(", ".join(f"“{g}”" for g in subs[:2]))
+        elif r["primary_genre"] in genres:
             reasons.append(f"{r['primary_genre']}")
         txt = base.get(idx, "").removeprefix("Why: ")
         if txt and txt != "similar description":

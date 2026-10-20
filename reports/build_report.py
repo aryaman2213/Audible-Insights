@@ -264,7 +264,7 @@ in one leftover cluster.</p>
 </tbody></table>
 <div class="box"><b>Evaluation design.</b> The data has no per-user ratings, so a recommendation counts as <b>relevant</b> when it
 shares at least one of the query book's 876 fine Audible genres (<b>strictly relevant</b>: two). Test set:
-{hyb['queries']} books with listed genres, top {k} recommendations each, seed {m['eval_settings']['seed']} (tuning used a different seed).
+{hyb['queries']} books with listed genres, top {k} recommendations each, seed {m['eval_settings']['seed']}. Hybrid weights were tuned on 300 separate validation books, disjoint from the test set.
 <b>Genre-blind</b> models use only titles and descriptions, so they cannot see the labels; they are the fair comparison.
 Full-feature (production) models also use the fine genres and are an optimistic upper bound.</div>
 {table(m['model_comparison'], metric_cols, highlight=lambda r: r['model'] == 'Hybrid (genre-blind)')}
@@ -288,8 +288,10 @@ Full-feature (production) models also use the fine genres and are an optimistic 
 <h2 class="page">7. Streamlit application</h2>
 <p>Seven pages:</p>
 <ul>
-<li><b>Discover:</b> KPIs plus top-rated, hidden-gem and most-reviewed shelves.</li>
-<li><b>Similar books:</b> pick a book and a model, get explained recommendations, and compare the three models side by side.</li>
+<li><b>Discover:</b> a search box that jumps straight to a book's recommendations, KPIs, and top-rated,
+hidden-gem and most-reviewed shelves.</li>
+<li><b>Similar books:</b> pick a book (or "Surprise me") and a model, get explained recommendations with a CSV
+download, and compare the three models side by side.</li>
 <li><b>For you:</b> genres, sub-genres, authors and liked books, with quick-start scenarios.</li>
 <li><b>Explore:</b> the EDA, interactive.</li>
 <li><b>Clusters:</b> map, cluster browser, KMeans vs DBSCAN.</li>
@@ -346,7 +348,7 @@ and the hybrid's quality term keeps recommendations well rated.</li>
 <tr><td>Models and metrics</td><td><code>models/</code>: recommender, genre classifier, metrics, cluster summary</td></tr>
 <tr><td>Streamlit app</td><td><code>app/</code>{f' · <a href="{live_url}">{live_url}</a>' if live_url else ''}</td></tr>
 <tr><td>AWS deployment</td><td><code>Dockerfile</code>, <code>deploy/ec2_user_data.sh</code>, <code>deploy/AWS_DEPLOY.md</code>{f' · <a href="{aws_url}">{aws_url}</a>' if aws_url else ''}</td></tr>
-<tr><td>Quality assurance</td><td><code>tests/e2e_app.py</code>: 163-check browser test of every page and control; the pipeline is byte-for-byte reproducible</td></tr>
+<tr><td>Quality assurance</td><td><code>tests/e2e_app.py</code>: 172-check browser test of every page and control; the pipeline is byte-for-byte reproducible</td></tr>
 <tr><td>Documentation</td><td><code>README.md</code>, this report, <code>reports/LIVE_EVALUATION_GUIDE.md</code>, <code>reports/screenshots/</code></td></tr>
 </tbody></table>
 """

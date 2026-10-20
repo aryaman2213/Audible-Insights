@@ -1,5 +1,6 @@
 """The app's pages. Each function draws one page."""
-import numpy as np
+import html
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -12,14 +13,28 @@ from src import eda
 
 
 # ---------------------------------------------------------------- home
+def _search_to_similar():
+    """Home search: open the chosen book on the Similar books page (runs as a callback, before widgets render)."""
+    if st.session_state.get("home-search") is not None:
+        st.session_state["similar-book"] = st.session_state["home-search"]
+        st.session_state["home-search"] = None
+        st.session_state["goto-similar"] = True
+
+
 def home():
     b = data.books()
     m = data.metrics()
-    ui.hero("Audible Insights", "Find your next great listen",
-            "A book recommendation system built on 6,000+ Audible India titles: NLP on descriptions, genre-aware "
+    ui.band("Audible Insights", "Find your next great listen",
+            f"Book recommendations across {len(b):,} Audible India titles: NLP on descriptions, genre-aware "
             "clustering and a hybrid model that balances similarity with quality.",
             pills=["Content-based", "Clustering-based", "Hybrid", f"{m['clustering']['k']} clusters",
                    "TF-IDF + SVD", "KMeans · DBSCAN"])
+    labels, _, _, _ = data.options()
+    st.selectbox("Search a book you loved", range(len(labels)), index=None, format_func=lambda i: labels[i],
+                 placeholder="Type a title or author, e.g. The Martian, Atomic Habits, Agatha Christie…",
+                 key="home-search", on_change=_search_to_similar, label_visibility="collapsed")
+    if st.session_state.pop("goto-similar", False):
+        st.switch_page(st.session_state["pages"]["similar"])
     rated = b[b["is_rated"]]
     n_broad = b.loc[b["primary_genre"] != "Unknown", "primary_genre"].nunique()
     n_fine = data.cleaning_report()["final_coverage"]["fine_genres"]
@@ -28,7 +43,7 @@ def home():
         ("Average rating", f"{rated['rating'].mean():.2f} ★", f"Across {len(rated):,} rated books"),
         ("Total reviews", f"{b['num_reviews'].sum() / 1e6:.2f} M", "Sum of review counts"),
         ("Genres", f"{n_broad} · {n_fine}", f"{n_broad} broad genres, mapped from {n_fine} fine Audible genres"),
-        ("Hidden gems", f"{int(b['hidden_gem'].sum()):,}", "Rated 4.5+ by 5–65 reviewers"),
+        ("Hidden gems", f"{int(b['hidden_gem'].sum()):,}", data.gem_rule()),
     ])
     st.write("")
     c1, c2, c3 = st.columns(3)
@@ -71,8 +86,13 @@ def similar():
     st.session_state.setdefault("similar-method", "Hybrid")
     choice = c1.selectbox("Book", range(len(labels)), format_func=lambda i: labels[i],
                           placeholder="Start typing a title or author…", key="similar-book")
-    method_label = c2.segmented_control("Model", list(data.METHODS), help=data.METHOD_HELP,
-                                        key="similar-method") or "Hybrid"
+    with c2:
+        m1, m2 = st.columns([1.6, 1], vertical_alignment="bottom")
+        method_label = m1.segmented_control("Model", list(data.METHODS), help=data.METHOD_HELP,
+                                            key="similar-method") or "Hybrid"
+        m2.button("Surprise me", icon=":material/casino:", width="stretch", key="btn-surprise",
+                  on_click=lambda: st.session_state.__setitem__("similar-book", data.surprise_book()),
+                  help="Pick a random well-reviewed book")
     if choice is None:
         st.caption("Try: *The Martian*, *Atomic Habits*, *Murder on the Orient Express*, *Rich Dad Poor Dad*")
         examples = ["The Martian", "Atomic Habits", "Murder on the Orient Express (Dramatised)",
@@ -88,18 +108,19 @@ def similar():
 
     q = b.iloc[choice]
     with ui.card("query-book"):
-        st.markdown(f'<p class="card-title">{q["title"]}</p><p class="card-sub">by {q["author"]} · '
-                    f'{q["primary_genre"] if q["primary_genre"] != "Unknown" else "genre not listed"} · '
-                    f'{"★ %.1f (%s reviews)" % (q["rating"], f"{q.num_reviews:,}") if q["is_rated"] else "not rated"}'
-                    f' · {ui.inr(q["price"])} · cluster {q["cluster"]}: {q["cluster_name"]}</p>',
-                    unsafe_allow_html=True)
+        rating = f"★ {q['rating']:.1f} ({q['num_reviews']:,} reviews)" if q["is_rated"] else "not rated"
+        genre = q["primary_genre"] if q["primary_genre"] != "Unknown" else "genre not listed"
+        length = f" · {ui.hours(q['listening_minutes'])}" if ui.hours(q["listening_minutes"]) else ""
+        st.markdown(f'<p class="card-title">{html.escape(q["title"])}</p><p class="card-sub">by '
+                    f'{html.escape(q["author"])} · {html.escape(genre)} · {rating} · {ui.inr(q["price"])}{length} · '
+                    f'cluster {q["cluster"]}: {html.escape(q["cluster_name"])}</p>', unsafe_allow_html=True)
         if isinstance(q["description"], str):
             st.write(q["description"])
         else:
             st.caption("No description was captured for this book, so recommendations rely on its title, author "
                        "and genres, and are less precise.")
         if isinstance(q["genres"], str):
-            st.caption("Audible genres: " + q["genres"].replace(" | ", " · "))
+            st.caption("Audible genres: " + " · ".join(ui.unique_genres(q["genres"])))
 
     c1, c2, c3 = st.columns([1, 1, 2])
     st.session_state.setdefault("similar-n", 10)
@@ -114,6 +135,12 @@ def similar():
     tab_recs, tab_compare = st.tabs(["Recommendations", "Compare the three models"])
     with tab_recs:
         recs = rec.recommend([choice], data.METHODS[method_label], n=n, mask=mask)
+        h1, h2 = st.columns([3, 1], vertical_alignment="center")
+        with h1:
+            ui.results_header(len(recs), f"for {q['short_title']} · {method_label} model")
+        with h2:
+            if len(recs):
+                ui.csv_download(recs, f"similar_to_{ui.slug(q['short_title'])[:40]}.csv", "dl-similar")
         ui.book_cards(recs, why=data.explain(recs, [choice]))
     with tab_compare:
         st.caption("Top 6 from each model for the same book and filters.")
@@ -180,7 +207,15 @@ def for_you():
         ui.book_cards(b[data.mask(f)].sort_values("weighted_rating", ascending=False).head(n))
         return
     recs = rec.recommend_for_profile(liked_ids=liked, genres=g, authors=au, sub_genres=sub, n=n, mask=data.mask(f))
-    ui.book_cards(recs, why=data.explain_profile(recs, set(g), set(au), liked))
+    parts = [f"{len(x)} {name}" for x, name in [(g, "genre(s)"), (sub, "sub-genre(s)"), (au, "author(s)"),
+                                                 (liked, "book(s)")] if x]
+    h1, h2 = st.columns([3, 1], vertical_alignment="center")
+    with h1:
+        ui.results_header(len(recs), "from your taste: " + ", ".join(parts))
+    with h2:
+        if len(recs):
+            ui.csv_download(recs, "my_recommendations.csv", "dl-for-you")
+    ui.book_cards(recs, why=data.explain_profile(recs, set(g), set(au), liked, sub))
 
 
 # ---------------------------------------------------------------- explore
@@ -400,7 +435,7 @@ def clusters():
     info = summary[str(c)]
     c1, c2 = st.columns([1, 1.4])
     with c1, ui.card(f"cluster-info-{c}"):
-        st.markdown(f'<p class="card-title">{info["name"]}</p><p class="card-sub">{info["size"]:,} books '
+        st.markdown(f'<p class="card-title">{html.escape(info["name"])}</p><p class="card-sub">{info["size"]:,} books '
                     f'({info["fitted_books"]} fitted) · average rating {info["avg_rating"]:.2f}</p>',
                     unsafe_allow_html=True)
         st.markdown("**Characteristic terms:** " + ", ".join(info["top_terms"][:10]))
@@ -447,8 +482,9 @@ def performance():
     ui.kpi_row([
         (f"Hybrid precision@{k}", f"{hyb[f'precision@{k}']:.3f}", "Genre-blind setting (text only)",
          f"{hyb[f'precision@{k}'] / rnd[f'precision@{k}']:.1f}× random", "normal"),
-        (f"Hybrid nDCG@{k}", f"{hyb[f'ndcg@{k}']:.3f}", "Rewards relevant books near the top",
-         f"+{(hyb[f'ndcg@{k}'] / cont[f'ndcg@{k}'] - 1):.0%} vs content", "normal"),
+        ("Hybrid picks' avg rating", f"{hyb['avg_rating_of_recs']:.2f} ★",
+         f"Same accuracy as content-based (nDCG {hyb[f'ndcg@{k}']:.3f} vs {cont[f'ndcg@{k}']:.3f}), better-rated picks",
+         f"+{hyb['avg_rating_of_recs'] - cont['avg_rating_of_recs']:.2f} vs content", "normal"),
         ("Best fair features", f"{pd.DataFrame(m['feature_ablation']).query('~uses_fine_genres')[f'precision@{k}'].max():.3f}",
          "Text + broad genre + author, precision@10"),
         ("Rating RMSE", f"{rm.loc['Hybrid (k-NN + author mean)', 'rmse']:.3f}", "Predicting held-out ratings",
@@ -470,7 +506,8 @@ def performance():
         fig = px.bar(bl, x=[f"precision@{k}", f"ndcg@{k}", f"recall@{k}"], y="model", orientation="h",
                      barmode="group", labels={"value": "score", "model": "", "variable": ""})
         fig.update_yaxes(categoryorder="array", categoryarray=list(bl["model"])[::-1])
-        ui.chart_card(fig, "Genre-blind comparison", "Hybrid > content > clustering > baselines", height=380)
+        ui.chart_card(fig, "Genre-blind comparison", "Hybrid ≈ content on accuracy, both far above clustering and the "
+                      "baselines", height=380)
     with c2:
         ab = pd.DataFrame(m["feature_ablation"])
         fig = px.bar(ab, x=f"precision@{k}", y="features", orientation="h",
@@ -484,7 +521,8 @@ def performance():
     if not sig.empty:
         st.markdown("#### Is the difference real?")
         st.caption("Wilcoxon signed-rank test on the per-book nDCG@10 of the same test books (paired, "
-                   "non-parametric). A small p-value means model A beats model B for real, not by chance.")
+                   "non-parametric, two-sided). A small p-value means the difference is real, not chance. Hybrid and "
+                   "content-based are equally accurate, but the hybrid's picks are rated significantly higher.")
         st.dataframe(sig.style.format({"mean_a": "{:.3f}", "mean_b": "{:.3f}", "wilcoxon_statistic": "{:,.0f}",
                                        "p_value": "{:.1e}"}), hide_index=True, width="stretch")
     c1, c2 = st.columns(2)
@@ -520,6 +558,7 @@ def performance():
 # ---------------------------------------------------------------- about
 def about():
     rep = data.cleaning_report()
+    no_genre = (data.books()["primary_genre"] == "Unknown").mean()
     ui.hero("About", "Audible Insights: Intelligent Book Recommendations",
             "GUVI × HCL capstone: data cleaning, EDA, NLP, clustering, three recommendation models and a Streamlit "
             "app, deployed on Streamlit Community Cloud and AWS.")
@@ -544,7 +583,7 @@ def about():
 #### Honest limitations
 - **No per-user data.** Collaborative filtering isn't possible, and "relevance" is approximated by shared genres.
 - **Missing scraped data.** {rep['merge']['books'] - rep['final_coverage']['with_description']:,} books have no
-  usable description and 62% have no genre, so their recommendations rely on title and author and are less precise.
+  usable description and {no_genre:.0%} have no genre, so their recommendations rely on title and author and are less precise.
 - **No publication dates.** Publication-year trends cannot be analysed.
 
 #### Tech

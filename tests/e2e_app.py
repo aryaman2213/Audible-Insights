@@ -18,6 +18,13 @@ BAD_RESPONSES = []
 DURATION = re.compile(r"·\s(?:(\d+) h )?(\d+) m\b")
 
 
+RATING = re.compile(r"(\d\.\d) · [\d.]+k? reviews")
+
+
+def ratings_of(texts):
+    return [float(m.group(1)) for t in texts for m in [RATING.search(t)] if m]
+
+
 def minutes(text):
     """Listening time on a card ('9 h 32 m' or '45 m') in minutes, or None."""
     m = DURATION.search(text)
@@ -107,6 +114,19 @@ def test_home(page, base):
         check(panel.locator(".book").count() == 8, f"tab '{t}' shows 8 books")
         if t == "Hidden gems":
             check(panel.inner_text().count("hidden gem") >= 8, "hidden-gem tab cards all carry the hidden-gem chip")
+    check(page.locator(".footer").count() == 1 and "GitHub" in page.locator(".footer").inner_text(), "footer present")
+    check(page.locator(".book .cover").count() >= 8, "book cards have covers")
+    inp = page.locator('[data-testid="stSelectbox"] input').first
+    inp.click()
+    inp.fill("Sapiens")
+    page.wait_for_timeout(600)
+    page.get_by_role("option").filter(has_text="Sapiens").first.click()
+    settle(page, 2500)
+    check(page.url.rstrip("/").endswith("/similar") and "Sapiens" in page.locator('[class*="st-key-card-query-book"]').inner_text(),
+          "home search opens Similar books with the chosen book")
+    page.goto(base)
+    settle(page, 2000)
+    check(page.url.rstrip("/") == base, "home does not bounce back to Similar books after a search")
     for link, path in [("Find similar books", "/similar"), ("Personalised picks", "/for-you"),
                        ("Explore the data", "/explore")]:
         page.goto(base)
@@ -135,6 +155,21 @@ def test_similar(page, base):
         check(cards(page).count() == 10, f"{ex}: 10 recommendations")
         check(page.locator(".book .why").count() == 10, f"{ex}: every card has a reason")
 
+    # surprise me
+    before = page.locator('[class*="st-key-card-query-book"] .card-title').inner_text()
+    page.get_by_role("button", name="Surprise me").click()
+    settle(page)
+    after = page.locator('[class*="st-key-card-query-book"] .card-title').inner_text()
+    check(after != before and cards(page).count() == 10, f"Surprise me picks another book ({after[:40]})")
+    no_exception(page, "surprise me")
+    # csv download
+    with page.expect_download() as dl:
+        page.get_by_role("button", name="Download list (CSV)").click()
+    path = dl.value.path()
+    rows = open(path, encoding="utf-8").read().strip().splitlines()
+    check(rows[0].startswith("title,author,genre") and len(rows) == 11, f"CSV download has header + 10 rows")
+    check("10 recommendations" in page.locator(".results-head").inner_text(), "results header shows the count")
+    select_option(page, "Book", "Ikigai", "Ikigai: The Japanese")
     # model switch
     for model in ["Content", "Cluster", "Hybrid"]:
         page.get_by_role("radio", name=model, exact=True).click()
@@ -150,7 +185,7 @@ def test_similar(page, base):
     # other authors only (Ikigai is the current book: Héctor García)
     author = page.locator('[class*="st-key-card-query-book"] .card-sub').inner_text().split("·")[0].replace("by", "").strip()
     toggle(page, "Other authors only")
-    authors = [t.split("\n")[2] if len(t.split("\n")) > 2 else "" for t in card_texts(page)]
+    authors = page.locator(".book .author").all_inner_texts()
     check(all(author not in a for a in authors) and len(authors) > 0, f"'Other authors only' hides {author}")
     toggle(page, "Other authors only")
 
@@ -160,7 +195,7 @@ def test_similar(page, base):
     texts = card_texts(page)
     check(len(texts) > 0 and all("Business & Careers" in t for t in texts), "genre filter: only Business & Careers")
     slider_keys(page, "Minimum rating", "ArrowRight", 45)          # 4.5
-    ratings = [float(m.group(1)) for t in card_texts(page) for m in [re.search(r"★ (\d\.\d)", t)] if m]
+    ratings = ratings_of(card_texts(page))
     check(all(r >= 4.5 for r in ratings), "min rating 4.5 respected (unrated allowed by toggle)")
     toggle(page, "Include unrated books")
     check(all("Not rated yet" not in t for t in card_texts(page)), "unrated books hidden when toggle off")
@@ -232,6 +267,9 @@ def test_for_you(page, base):
     settle(page)
     check(page.get_by_text("Choose at least one genre").count() == 1, "Clear empties the taste")
     select_option(page, "Authors you like", "Agatha Christie")
+    with page.expect_download() as dl:
+        page.get_by_role("button", name="Download list (CSV)").click()
+    check(len(open(dl.value.path(), encoding="utf-8").read().strip().splitlines()) == 13, "For you CSV: header + 12 rows")
     texts = card_texts(page)
     check(sum("Agatha Christie" in t for t in texts) >= 6, "author preference: Christie books first")
     select_option(page, "Books you have enjoyed", "The Alchemist", "The Alchemist")

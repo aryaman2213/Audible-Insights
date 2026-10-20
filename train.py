@@ -34,14 +34,17 @@ def main():
     print("    best:", hybrid_weights)
 
     print("3/5 comparing models (test queries)")
-    rankers = E.build_rankers(books, blocks, quality, clusters.labels, clusters.text_labels, hybrid_weights)
+    text_clusters = E.text_only_clusters(books, blocks, clusters.k)
+    rankers = E.build_rankers(books, blocks, quality, clusters.labels, text_clusters, hybrid_weights)
     per_query = {}
     comparison = E.evaluate_rankers(books, {n: r for n, (r, _) in rankers.items()}, per_query=per_query)
     comparison["uses_fine_genres"] = [rankers[n][1] for n in comparison["model"]]
     print(comparison.round(3).to_string(index=False))
     sig = E.significance(per_query, [("Hybrid (genre-blind)", "Content-based (genre-blind)"),
                                      ("Hybrid (genre-blind)", "Clustering-based (genre-blind)"),
-                                     ("Content-based (genre-blind)", "Random")])
+                                     ("Content-based (genre-blind)", "Random")], alternative="two-sided")
+    sig += E.significance(per_query, [("Hybrid (genre-blind)", "Content-based (genre-blind)")], metric="rating",
+                          alternative="two-sided")
     print(pd.DataFrame(sig).round(4).to_string(index=False))
 
     print("4/5 feature ablation + rating prediction")
@@ -79,7 +82,8 @@ def main():
         "eval_settings": {"k": config.EVAL_K, "queries": config.EVAL_QUERIES,
                           "relevant": "shares >= 1 fine Audible genre with the query",
                           "strictly_relevant": "shares >= 2 fine genres",
-                          "pool": "books with listed genres", "seed": config.SEED},
+                          "pool": "books with listed genres", "seed": config.SEED,
+                          "validation": "300 books, disjoint from the 600 test books, used only to tune hybrid weights"},
     }
     config.MODEL_METRICS.write_text(json.dumps(metrics, indent=2, default=float))
     print(f"done in {time.time() - t0:.0f}s")

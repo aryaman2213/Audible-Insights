@@ -35,16 +35,23 @@ def ranking_metrics(ranked: np.ndarray, rel: np.ndarray, strict: np.ndarray, k: 
             "strict_precision": strict[ranked[:k]].mean() if len(hits) else 0.0}
 
 
-def evaluate_rankers(books: pd.DataFrame, rankers: dict, k=config.EVAL_K, n_queries=config.EVAL_QUERIES,
-                     seed=config.SEED, per_query: dict | None = None) -> pd.DataFrame:
+def query_split(books: pd.DataFrame, n_test=config.EVAL_QUERIES, n_val=300, seed=config.SEED):
+    """Disjoint validation and test query books (listed genre + real description). Validation tunes the hybrid
+    weights; test is scored once."""
+    pool = books["genre_source"].eq("listed").to_numpy() & books["has_description"].to_numpy()
+    shuffled = np.random.RandomState(seed).permutation(np.where(pool)[0])
+    return shuffled[n_test:n_test + n_val], shuffled[:n_test]
+
+
+def evaluate_rankers(books: pd.DataFrame, rankers: dict, k=config.EVAL_K, queries=None,
+                     per_query: dict | None = None) -> pd.DataFrame:
     """rankers: name -> function(query_index, pool_mask) -> score array over all books.
     Returns one row per ranker with mean metrics, average rating of what it recommends, and catalogue coverage.
     Pass a dict as per_query to also receive each ranker's per-query metrics (for significance tests)."""
     M = genre_matrix(books)
     pool = books["genre_source"].eq("listed").to_numpy()
-    queries_all = np.where(pool & books["has_description"].to_numpy())[0]
-    rng = np.random.RandomState(seed)
-    queries = rng.choice(queries_all, size=min(n_queries, len(queries_all)), replace=False)
+    if queries is None:
+        queries = query_split(books)[1]          # the test queries
 
     # Same-book editions are never relevant targets (the recommender removes them too).
     st = books["short_title"].str.lower().to_numpy()
@@ -66,7 +73,10 @@ def evaluate_rankers(books: pd.DataFrame, rankers: dict, k=config.EVAL_K, n_quer
             scores = ranker(q, mask).astype(float)
             scores[~mask] = -np.inf
             ranked = np.argsort(-scores, kind="stable")[:k]
-            metrics.append(ranking_metrics(ranked, rel, strict, k))
+            row = ranking_metrics(ranked, rel, strict, k)
+            rated = rating[ranked][~np.isnan(rating[ranked])]
+            row["rating"] = rated.mean() if len(rated) else np.nan     # average rating of this query's picks
+            metrics.append(row)
             recommended.update(ranked.tolist())
             ratings.extend(rating[ranked][~np.isnan(rating[ranked])].tolist())
         if per_query is not None:
@@ -92,9 +102,22 @@ def similarity_fn(C: sparse.csr_matrix):
     return lambda q: np.asarray((C @ C[q].T).todense()).ravel()
 
 
+def text_only_clusters(books, blocks, k) -> np.ndarray:
+    """Clusters learned from description text alone (same k as production), for the genre-blind evaluation.
+    The production clusters are learned with genre features, so using them here would leak the labels the
+    evaluation scores against."""
+    from sklearn.cluster import KMeans
+    from sklearn.decomposition import TruncatedSVD
+    from sklearn.preprocessing import normalize
+    emb = normalize(TruncatedSVD(config.SVD_COMPONENTS, random_state=config.SEED).fit_transform(blocks["text"]))
+    rich = books["has_description"].to_numpy()
+    return KMeans(n_clusters=k, n_init=10, random_state=config.SEED).fit(emb[rich]).predict(emb)
+
+
 def build_rankers(books, blocks, quality, clusters, text_clusters, hybrid_weights) -> pd.DataFrame:
     """Every model to compare, as name -> (ranker, uses fine genres?). Genre-blind variants use only the text
-    block and text-assigned clusters, so they cannot see the labels the evaluation scores against."""
+    block and clusters learned from text alone (text_clusters), so they cannot see the labels the evaluation
+    scores against."""
     rng = np.random.RandomState(config.SEED)
     text_sim = similarity_fn(R.combine(blocks, {"text": 1.0}))
     full_sim = similarity_fn(R.combine(blocks, R.PRODUCTION_WEIGHTS))
@@ -132,7 +155,7 @@ def feature_ablation(books, blocks) -> pd.DataFrame:
 
 # ---------------------------------------------------------------- hybrid weight tuning
 def tune_hybrid(books, blocks, clusters, quality, grid=None, k=config.EVAL_K):
-    """Grid-search the hybrid weights on a validation query set (different seed from the test queries). The
+    """Grid-search the hybrid weights on validation query books, disjoint from the test books. The
     objective is nDCG@k with a small reward for recommending well-rated books, so quality is not tuned to zero."""
     prod = R.combine(blocks, R.PRODUCTION_WEIGHTS)
     grid = grid or [(c, cl, 1 - c - cl) for c in (0.5, 0.6, 0.7, 0.8, 0.9) for cl in (0.0, 0.05, 0.1, 0.2)
@@ -141,7 +164,7 @@ def tune_hybrid(books, blocks, clusters, quality, grid=None, k=config.EVAL_K):
     for c, cl, qu in grid:
         f = (lambda c, cl, qu: lambda q, m: c * np.asarray((prod @ prod[q].T).todense()).ravel()
              + cl * (clusters == clusters[q]) + qu * quality)(c, cl, qu)
-        r = evaluate_rankers(books, {"h": f}, k=k, n_queries=300, seed=config.SEED + 1).iloc[0]
+        r = evaluate_rankers(books, {"h": f}, k=k, queries=query_split(books)[0]).iloc[0]
         rows.append({"content": c, "cluster": cl, "quality": round(qu, 2), f"ndcg@{k}": r[f"ndcg@{k}"],
                      f"precision@{k}": r[f"precision@{k}"], "avg_rating_of_recs": r["avg_rating_of_recs"]})
     res = pd.DataFrame(rows)
@@ -190,15 +213,19 @@ def rating_prediction(books: pd.DataFrame, blocks: dict, k=config.RATING_KNN_NEI
     return pd.DataFrame(rows).assign(test_books=len(test), train_books=len(train))
 
 
-def significance(per_query: dict, pairs: list[tuple[str, str]], metric="ndcg") -> list[dict]:
+def significance(per_query: dict, pairs: list[tuple[str, str]], metric="ndcg", alternative="greater") -> list[dict]:
     """Wilcoxon signed-rank test on per-query scores: is model A really better than model B on the same queries?
     Paired and non-parametric, because per-query nDCG is bounded and far from normal."""
     from scipy.stats import wilcoxon
     out = []
     for a, b in pairs:
         x, y = per_query[a][metric].to_numpy(), per_query[b][metric].to_numpy()
-        stat, p = wilcoxon(x, y, zero_method="wilcox", alternative="greater")
-        out.append({"model_a": a, "model_b": b, "metric": f"{metric}@{config.EVAL_K}", "mean_a": float(x.mean()),
+        ok = ~(np.isnan(x) | np.isnan(y))
+        x, y = x[ok], y[ok]
+        stat, p = wilcoxon(x, y, zero_method="wilcox", alternative=alternative)
+        label = f"{metric}@{config.EVAL_K}" if metric != "rating" else "avg rating of picks"
+        out.append({"model_a": a, "model_b": b, "metric": label, "test": f"Wilcoxon ({alternative})",
+                    "mean_a": float(x.mean()),
                     "mean_b": float(y.mean()), "a_better_queries": int((x > y).sum()),
                     "b_better_queries": int((x < y).sum()), "ties": int((x == y).sum()),
                     "wilcoxon_statistic": float(stat), "p_value": float(p)})

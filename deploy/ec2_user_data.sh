@@ -4,7 +4,7 @@
 # Progress log: /var/log/cloud-init-output.log
 set -euxo pipefail
 
-REPO_URL="https://github.com/aryaman2213/audible-insights.git"   # change if your repo name differs
+REPO_URL="https://github.com/aryaman2213/Audible-Insights.git"   # the public GitHub repo to deploy
 APP_DIR=/opt/audible-insights
 
 # 1 GB swap: a t2/t3.micro has 1 GB RAM, which is tight while pip builds the image.

@@ -5,6 +5,16 @@ NLP on book descriptions, groups books into 16 clusters, and compares three reco
 clustering-based and hybrid. Everything is served through a Streamlit app, deployed on Streamlit Community Cloud
 and AWS EC2 (Docker).
 
+![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.66-FF4B4B?logo=streamlit&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-1.9-F7931E?logo=scikitlearn&logoColor=white)
+![pandas](https://img.shields.io/badge/pandas-3.0-150458?logo=pandas&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-EC2-FF9900?logo=amazonwebservices&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+![Audible Insights home page](reports/screenshots/01_discover.png)
+
 | What | Result |
 |---|---|
 | Data | 10,832 raw rows → **6,056 unique books**. 2,022 junk descriptions removed, 132 mis-scaled prices fixed, 876 fine genres mapped to 17 broad genres |
@@ -24,8 +34,13 @@ and AWS EC2 (Docker).
 - **EDA:** [`notebooks/eda.ipynb`](notebooks/eda.ipynb) (executed) answers every question in the brief
 - **Report:** [`reports/Audible_Insights_Report.pdf`](reports/Audible_Insights_Report.pdf)
 - **AWS guide:** [`deploy/AWS_DEPLOY.md`](deploy/AWS_DEPLOY.md)
-- **Live-evaluation script:** [`reports/LIVE_EVALUATION_GUIDE.md`](reports/LIVE_EVALUATION_GUIDE.md), what to say in the
-  12-minute explanation, plus likely questions and answers
+
+## Screenshots
+| Similar books, with a reason for every pick | Personalised picks from your taste |
+|---|---|
+| ![Similar books](reports/screenshots/02_similar_books.png) | ![For you](reports/screenshots/04_for_you_thriller.png) |
+| **Clusters: 16 groups of similar books** | **Model performance: honest, genre-blind evaluation** |
+| ![Clusters](reports/screenshots/07_clusters.png) | ![Model performance](reports/screenshots/08_model_performance.png) |
 
 ---
 
@@ -65,7 +80,7 @@ The repo already contains the processed data and the trained models, so the app 
 | `app/` | Streamlit app (`streamlit_app.py` entry, `views.py` pages, `data.py` data access, `ui.py` styling) |
 | `models/` | `recommender.joblib`, `genre_classifier.joblib`, `model_metrics.json`, `cluster_summary.json` |
 | `Dockerfile`, `deploy/` | Container image, EC2 start-up script, update script, AWS guide |
-| `reports/` | PDF report, live-evaluation guide, figures, app screenshots, and the scripts that build them |
+| `reports/` | PDF report, figures, app screenshots, and the scripts that build them |
 | `tests/e2e_app.py` | End-to-end browser test: every button, tab, dropdown, slider, toggle and expander on every page |
 
 ## Methodology
@@ -241,4 +256,9 @@ The guide also covers updates, scaling (Auto Scaling + ALB or Elastic Beanstalk)
 | Multiple recommenders, evaluated (precision, recall, RMSE) | `src/evaluation.py`, `models/model_metrics.json`, Model performance page |
 | Streamlit app (preferences in, recommendations out, EDA) | `app/` |
 | AWS deployment | `Dockerfile`, `deploy/` |
-| Live evaluation preparation | `reports/LIVE_EVALUATION_GUIDE.md` |
+
+## License and acknowledgements
+- **Code:** MIT License, see [`LICENSE`](LICENSE).
+- **Data:** the two Audible catalogue files were provided by GUVI for this capstone. They are included only so the
+  pipeline can be reproduced.
+- Built by **Aryaman Bhatnagar** as a GUVI × HCL capstone project (Data Science).

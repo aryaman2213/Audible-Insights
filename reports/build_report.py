@@ -29,7 +29,7 @@ from src import eda  # noqa: E402
 REPORTS = ROOT / "reports"
 PDF_PATH = REPORTS / "Audible_Insights_Report.pdf"
 AUTHOR = "Aryaman Bhatnagar"
-GITHUB_URL = "https://github.com/aryaman2213/audible-insights"
+GITHUB_URL = "https://github.com/aryaman2213/Audible-Insights"
 
 
 def md(text: str) -> str:
@@ -349,7 +349,7 @@ and the hybrid's quality term keeps recommendations well rated.</li>
 <tr><td>Streamlit app</td><td><code>app/</code>{f' · <a href="{live_url}">{live_url}</a>' if live_url else ''}</td></tr>
 <tr><td>AWS deployment</td><td><code>Dockerfile</code>, <code>deploy/ec2_user_data.sh</code>, <code>deploy/AWS_DEPLOY.md</code>{f' · <a href="{aws_url}">{aws_url}</a>' if aws_url else ''}</td></tr>
 <tr><td>Quality assurance</td><td><code>tests/e2e_app.py</code>: 172-check browser test of every page and control; the pipeline is byte-for-byte reproducible</td></tr>
-<tr><td>Documentation</td><td><code>README.md</code>, this report, <code>reports/LIVE_EVALUATION_GUIDE.md</code>, <code>reports/screenshots/</code></td></tr>
+<tr><td>Documentation</td><td><code>README.md</code>, this report, <code>reports/screenshots/</code></td></tr>
 </tbody></table>
 """
     return f"<!doctype html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{body}</body></html>"

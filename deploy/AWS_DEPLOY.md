@@ -18,7 +18,7 @@ longer need it** (step 6).
 
 ## 0. Before you start
 1. The repository must be **public on GitHub**, because the instance clones it. If your repo is not
-   `aryaman2213/audible-insights`, edit `REPO_URL` at the top of `deploy/ec2_user_data.sh` first.
+   `aryaman2213/Audible-Insights`, edit `REPO_URL` at the top of `deploy/ec2_user_data.sh` first.
 2. An AWS account. Sign in to the console and pick the region **Asia Pacific (Mumbai) ap-south-1** (top-right).
 
 ## 1. Launch the instance

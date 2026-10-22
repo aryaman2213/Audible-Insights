@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .DS_Store
+
+# personal live-evaluation prep notes (kept local)
+reports/LIVE_EVALUATION_GUIDE.md

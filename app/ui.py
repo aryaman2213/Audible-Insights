@@ -255,7 +255,7 @@ def footer():
     st.markdown(
         '<div class="footer"><span>Audible Insights · GUVI × HCL capstone by Aryaman Bhatnagar</span>'
         '<span>Data: Audible India catalogue (6,056 books) · '
-        '<a href="https://github.com/aryaman2213/audible-insights" target="_blank">Source on GitHub</a></span></div>',
+        '<a href="https://github.com/aryaman2213/Audible-Insights" target="_blank">Source on GitHub</a></span></div>',
         unsafe_allow_html=True)
 
 

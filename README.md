@@ -12,6 +12,9 @@ and AWS EC2 (Docker).
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-EC2-FF9900?logo=amazonwebservices&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://audible-insights.streamlit.app)
+
+### 🔗 Live app: **[audible-insights.streamlit.app](https://audible-insights.streamlit.app)**
 
 ![Audible Insights home page](reports/screenshots/01_discover.png)
 

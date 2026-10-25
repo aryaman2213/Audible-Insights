@@ -14,7 +14,7 @@ and AWS EC2 (Docker).
 ![License](https://img.shields.io/badge/License-MIT-green)
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://audible-insights.streamlit.app)
 
-### 🔗 Live app: **[audible-insights.streamlit.app](https://audible-insights.streamlit.app)**
+### 🔗 Live app: **[audible-insights.streamlit.app](https://audible-insights.streamlit.app)** · AWS EC2 (Docker): **[13.201.229.82](http://13.201.229.82)**
 
 ![Audible Insights home page](reports/screenshots/01_discover.png)
 
@@ -239,7 +239,7 @@ shows only books of 6 hours or less).
 4. Under Advanced settings, pick **Python 3.13**.
 5. Click Deploy. Dependencies come from `app/requirements.txt`.
 
-**AWS EC2 (Docker)**: see [`deploy/AWS_DEPLOY.md`](deploy/AWS_DEPLOY.md). Launch an Amazon Linux 2023 t3.micro,
+**AWS EC2 (Docker)**, live at **http://13.201.229.82** (Mumbai, t3.micro): see [`deploy/AWS_DEPLOY.md`](deploy/AWS_DEPLOY.md). Launch an Amazon Linux 2023 t3.micro,
 paste `deploy/ec2_user_data.sh` into *User data*, open port 80, and the instance builds and serves the app itself.
 The guide also covers updates, scaling (Auto Scaling + ALB or Elastic Beanstalk) and how to stop paying.
 
